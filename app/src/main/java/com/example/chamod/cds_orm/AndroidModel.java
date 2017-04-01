@@ -28,7 +28,7 @@ public class AndroidModel {
         for (Field f:fields){
 //           a db column
             if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
-//                Log.e(TAG,f.getName());
+
             }
         }
 
@@ -52,7 +52,7 @@ public class AndroidModel {
             for (Field f:fields){
 //           a db column
                 if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
-                    dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary()));
+                    dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary(f)));
                 }
             }
         }
@@ -63,16 +63,32 @@ public class AndroidModel {
 
 
     private String getDataType(Field f){
+        DBAnnotation.DataType dataType=f.getAnnotation(DBAnnotation.DataType.class);
+        if(dataType!=null){
+            return dataType.data_type();
+        }
+        if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
+            return "INT";
+        }
+        if(f.getType().equals(String.class)){
+            return "TEXT";
+        }
 
-
+        return  null;
     }
 
     private String getColumnName(Field f){
-
+        DBAnnotation.ColumnName columnName=f.getAnnotation(DBAnnotation.ColumnName.class);
+        if(columnName!=null){
+            return columnName.column_name();
+        }
+        return f.getName();
     }
 
-    public boolean isPrimary() {
-
+    public boolean isPrimary(Field f) {
+        if(f.getAnnotation(DBAnnotation.PrimaryKey.class)!=null){
+            return true;
+        }
         return false;
     }
 }

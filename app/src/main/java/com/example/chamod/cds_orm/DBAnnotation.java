@@ -23,17 +23,24 @@ public class DBAnnotation {
     @interface DBColumn {}
 
 
-
+//      to specify the column name
   @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @interface ColumnName{
         String column_name();
     }
 
+//    to specify the data type
   @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @interface DataType{
         String data_type();
     }
+
+//    to specify as a primary key
+  @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @interface PrimaryKey{}
+
 
 }
