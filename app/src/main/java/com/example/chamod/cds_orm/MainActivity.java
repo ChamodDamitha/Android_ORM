@@ -15,12 +15,17 @@ public class MainActivity extends AppCompatActivity {
 
 
 //        test annotations
-        User user=(User) new User(this).getFirst();
+        ArrayList<User> users=User.getAll(User.class,this);
 
-        Log.w("ORM","obj got");
-        Log.w("ORM","obj id - "+user.id);
-        Log.w("ORM","obj name - "+user.name);
-        Log.w("ORM","obj password - "+user.password);
+//        User user=User.getFirst(User.class,this);
+
+        for (User user:users
+             ) {
+            Log.w("ORM","obj got");
+            Log.w("ORM","obj id - "+user.id);
+            Log.w("ORM","obj name - "+user.name);
+            Log.w("ORM","obj password - "+user.password);
+        }
 
     }
 }

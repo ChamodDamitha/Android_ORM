@@ -35,7 +35,7 @@ public class AnnotationHandler {
     public DBTable createTable(Class<?> clas){
         DBTable dbTable;
 
-//      get all annotated fields
+//      getAll all annotated fields
         Field[] fields=clas.getFields();
         DBAnnotation.TableName tableName =clas.getAnnotation(DBAnnotation.TableName.class);
         if(tableName!=null) {

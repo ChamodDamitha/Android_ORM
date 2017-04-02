@@ -3,10 +3,6 @@ package com.example.chamod.cds_orm;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
-import android.util.Log;
-
-import com.example.chamod.cds_orm.DBModels.Attribute;
-import com.example.chamod.cds_orm.DBModels.DBTable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,7 +24,7 @@ public class AndroidModel {
     public void save(){
         AnnotationHandler annotationHandler=AnnotationHandler.getInstance(context);
 
-//      get all annotated fields
+//      getAll all annotated fields
         Field[] fields=this.getClass().getFields();
 
         ContentValues cv=new ContentValues();
@@ -57,9 +53,15 @@ public class AndroidModel {
     }
 
 
-    public Object getFirst(){
-        return DB_Helper.getInstance(context).readFirstRecord(this.getClass(),
-                AnnotationHandler.getInstance(context).createTable(this.getClass()));
+    public static <T>T getFirst(Class<T> clas,Context context){
+        return (T)DB_Helper.getInstance(context).readFirstRecord(clas,
+                AnnotationHandler.getInstance(context).createTable(clas));
+
+    }
+
+    public static <T>ArrayList<T> getAll(Class<T> clas, Context context){
+        return DB_Helper.getInstance(context).readAllRecords(clas,
+                AnnotationHandler.getInstance(context).createTable(clas));
 
     }
 
