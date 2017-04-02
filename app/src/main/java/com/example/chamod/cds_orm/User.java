@@ -14,10 +14,10 @@ public class User extends AndroidModel {
     protected int id;
 
     @DBAnnotation.DBColumn
-    protected String name="chamod";
+    protected String name;
 
     @DBAnnotation.DBColumn
-    protected String password="pass";
+    protected String password;
 
 
     public User(Context context) {

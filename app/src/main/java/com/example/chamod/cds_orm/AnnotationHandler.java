@@ -32,7 +32,7 @@ public class AnnotationHandler {
         return annotationHandler;
     }
 
-    public void createTable(Class<?> clas){
+    public DBTable createTable(Class<?> clas){
         DBTable dbTable;
 
 //      get all annotated fields
@@ -48,14 +48,16 @@ public class AnnotationHandler {
                     dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary(f)));
                 }
             }
-            db_helper.createTable(dbTable);
+
+            return dbTable;
         }
         else{
             Log.e(Error_TAG,"Please specify a table name using @TableName annotation");
+            return null;
         }
     }
 
-    public String getTableName(Class<?> clas){
+    public  static String getTableName(Class<?> clas){
         String table_name=clas.getAnnotation(DBAnnotation.TableName.class).table_name();
         if(table_name!=null){
             return table_name;
@@ -63,14 +65,14 @@ public class AnnotationHandler {
         return clas.getName();
     }
 
-    public boolean isAttribute(Field f){
+    public static boolean isAttribute(Field f){
         if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
             return true;
         }
         return false;
     }
 
-    public String getDataType(Field f){
+    public static String getDataType(Field f){
         DBAnnotation.DataType dataType=f.getAnnotation(DBAnnotation.DataType.class);
         if(dataType!=null){
             return dataType.data_type();
@@ -85,7 +87,7 @@ public class AnnotationHandler {
         return  null;
     }
 
-    public String getColumnName(Field f){
+    public static String getColumnName(Field f){
         DBAnnotation.ColumnName columnName=f.getAnnotation(DBAnnotation.ColumnName.class);
         if(columnName!=null){
             return columnName.column_name();
@@ -93,7 +95,7 @@ public class AnnotationHandler {
         return f.getName();
     }
 
-    public boolean isPrimary(Field f) {
+    public static boolean isPrimary(Field f) {
         if(f.getAnnotation(DBAnnotation.PrimaryKey.class)!=null){
             return true;
         }

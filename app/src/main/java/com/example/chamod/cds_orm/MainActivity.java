@@ -2,6 +2,9 @@ package com.example.chamod.cds_orm;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -12,7 +15,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 //        test annotations
-        User user=new User(this);
-        user.save();
+        User user=(User) new User(this).getFirst();
+
+        Log.w("ORM","obj got");
+        Log.w("ORM","obj id - "+user.id);
+        Log.w("ORM","obj name - "+user.name);
+        Log.w("ORM","obj password - "+user.password);
+
     }
 }

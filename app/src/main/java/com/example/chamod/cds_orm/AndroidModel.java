@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 
 public class AndroidModel {
-    private Context context;
+    private static Context context;
 
     public AndroidModel(Context context){
         this.context=context;
@@ -24,6 +24,7 @@ public class AndroidModel {
 
 
 
+//    inserting a new object to the database
     public void save(){
         AnnotationHandler annotationHandler=AnnotationHandler.getInstance(context);
 
@@ -48,7 +49,7 @@ public class AndroidModel {
                 db_helper.insertRecord(annotationHandler.getTableName(getClass()), cv);
             }
             catch (SQLiteException e) {
-                annotationHandler.createTable(getClass());
+                db_helper.createTable(annotationHandler.createTable(getClass()));
                 continue;
             }
             break;
@@ -56,7 +57,11 @@ public class AndroidModel {
     }
 
 
+    public Object getFirst(){
+        return DB_Helper.getInstance(context).readFirstRecord(this.getClass(),
+                AnnotationHandler.getInstance(context).createTable(this.getClass()));
 
+    }
 
 
 
