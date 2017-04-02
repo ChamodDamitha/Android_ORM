@@ -8,6 +8,7 @@ public class Attribute {
     private String name;
     private String type;
     private boolean isPrimary;
+    private String value;
 
 
     public Attribute(String name, String type, boolean isPrimary) {
@@ -26,5 +27,13 @@ public class Attribute {
 
     public boolean isPrimary() {
         return isPrimary;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

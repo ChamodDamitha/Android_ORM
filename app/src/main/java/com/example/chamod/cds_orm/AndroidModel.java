@@ -1,5 +1,8 @@
 package com.example.chamod.cds_orm;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import com.example.chamod.cds_orm.DBModels.Attribute;
@@ -13,82 +16,48 @@ import java.util.ArrayList;
  */
 
 public class AndroidModel {
+    private Context context;
 
-    private final String Error_TAG="ORM_Exception";
-    private final String Success_TAG="ORM";
+    public AndroidModel(Context context){
+        this.context=context;
+    }
 
 
 
     public void save(){
-        createTable();
+        AnnotationHandler annotationHandler=AnnotationHandler.getInstance(context);
 
 //      get all annotated fields
         Field[] fields=this.getClass().getFields();
+
+        ContentValues cv=new ContentValues();
 
         for (Field f:fields){
 //           a db column
-            if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
-
-            }
-        }
-
-
-    }
-
-
-
-
-
-    private void createTable(){
-        DBTable dbTable;
-
-//      get all annotated fields
-        Field[] fields=this.getClass().getFields();
-        DBAnnotation.TableName tableName =this.getClass().getAnnotation(DBAnnotation.TableName.class);
-        if(tableName!=null) {
-//            create a table
-            dbTable=new DBTable(tableName.table_name());
-
-            for (Field f:fields){
-//           a db column
-                if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
-                    dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary(f)));
+            if(annotationHandler.isAttribute(f)){
+                try {
+                    cv.put(annotationHandler.getColumnName(f),(f.get(this)).toString());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
                 }
             }
         }
-        else{
-            Log.e(Error_TAG,"Please specify a table name using @TableName annotation");
+        DB_Helper db_helper=DB_Helper.getInstance(context);
+        while(true) {
+            try {
+                db_helper.insertRecord(annotationHandler.getTableName(getClass()), cv);
+            }
+            catch (SQLiteException e) {
+                annotationHandler.createTable(getClass());
+                continue;
+            }
+            break;
         }
     }
 
 
-    private String getDataType(Field f){
-        DBAnnotation.DataType dataType=f.getAnnotation(DBAnnotation.DataType.class);
-        if(dataType!=null){
-            return dataType.data_type();
-        }
-        if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
-            return "INT";
-        }
-        if(f.getType().equals(String.class)){
-            return "TEXT";
-        }
 
-        return  null;
-    }
 
-    private String getColumnName(Field f){
-        DBAnnotation.ColumnName columnName=f.getAnnotation(DBAnnotation.ColumnName.class);
-        if(columnName!=null){
-            return columnName.column_name();
-        }
-        return f.getName();
-    }
 
-    public boolean isPrimary(Field f) {
-        if(f.getAnnotation(DBAnnotation.PrimaryKey.class)!=null){
-            return true;
-        }
-        return false;
-    }
+
 }

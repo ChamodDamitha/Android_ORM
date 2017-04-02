@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 //        test annotations
-        User user=new User();
+        User user=new User(this);
         user.save();
     }
 }

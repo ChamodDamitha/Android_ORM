@@ -1,5 +1,7 @@
 package com.example.chamod.cds_orm;
 
+import android.content.Context;
+
 /**
  * Created by chamod on 4/1/17.
  */
@@ -12,10 +14,13 @@ public class User extends AndroidModel {
     protected int id;
 
     @DBAnnotation.DBColumn
-    protected String name;
+    protected String name="chamod";
 
     @DBAnnotation.DBColumn
-    protected String password;
+    protected String password="pass";
 
 
+    public User(Context context) {
+        super(context);
+    }
 }
