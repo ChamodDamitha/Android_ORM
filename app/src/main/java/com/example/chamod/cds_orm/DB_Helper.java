@@ -193,4 +193,67 @@ public class DB_Helper extends SQLiteOpenHelper {
 
 
 
+    public <T>ArrayList<T> readRecords(Class<T> clas, DBTable dbTable,String key,Object value){
+        ArrayList<T> objects=new ArrayList<>();
+
+        try {
+            Class<?> c = Class.forName(clas.getName());
+            Constructor<?> cons = c.getConstructor(Context.class);
+
+            SQLiteDatabase db = getReadableDatabase();
+
+            String query = "SELECT * FROM " + dbTable.getName()+" WHERE ";
+
+            if(value.getClass().equals(String.class)){
+                query+=key+"='"+value+"' ;";
+            }
+            else{
+                query+=key+"="+value+" ;";
+            }
+
+            Cursor cursor = db.rawQuery(query, null);
+
+            while (cursor.moveToNext()) {
+                try {
+                    Object object = cons.newInstance(context);
+
+                    for (Attribute attribute : dbTable.getAttributes()
+                            ) {
+                        try {
+                            Field f=clas.getField(attribute.getName());
+//                            check type of the field
+                            if(f.getType().equals(String.class)){
+                                f.set(object,cursor.getString(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+                            }
+                            else if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
+                                f.set(object,cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+                            }
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    objects.add((T) object);
+                }
+                catch (InstantiationException e) {
+                    e.printStackTrace();
+                }
+                catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            db.close();
+        }
+        catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return objects;
+    }
+
 }

@@ -2,7 +2,9 @@ package com.example.chamod.cds_orm;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
+import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -44,9 +46,14 @@ public class AndroidModel {
             try {
                 db_helper.insertRecord(annotationHandler.getTableName(getClass()), cv);
             }
-            catch (SQLiteException e) {
-                db_helper.createTable(annotationHandler.createTable(getClass()));
-                continue;
+            catch (SQLiteConstraintException e){
+                Log.e("ORM","Duplicate entry for same primary key");
+            }
+            catch (SQLiteException e){
+                if(e.getMessage().split(":")[0].equals("no such table")) {
+                    db_helper.createTable(annotationHandler.createTable(getClass()));
+                    continue;
+                }
             }
             break;
         }
@@ -64,7 +71,10 @@ public class AndroidModel {
                 AnnotationHandler.getInstance(context).createTable(clas));
 
     }
-
+    public static <T>ArrayList<T> get(Class<T> clas, Context context,String key,Object value){
+        return DB_Helper.getInstance(context).readRecords(clas,
+                AnnotationHandler.getInstance(context).createTable(clas),key,value);
+    }
 
 
 }
