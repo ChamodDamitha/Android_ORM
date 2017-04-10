@@ -132,6 +132,10 @@ public class AndroidModel {
                 AnnotationHandler.getInstance(context).createTable(clas),key,value);
     }
 
-
+//...................delete a model................................................................
+public static void delete(Class<?> clas, Context context,String key,Object value){
+    DB_Helper.getInstance(context).
+            deleteRecords(AnnotationHandler.getInstance(context).createTable(clas).getName(),key,value);
+}
 
 }

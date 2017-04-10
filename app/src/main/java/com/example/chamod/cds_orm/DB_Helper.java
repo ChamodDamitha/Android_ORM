@@ -270,4 +270,18 @@ public class DB_Helper extends SQLiteOpenHelper {
         db.close();
     }
 
+
+    public void deleteRecords(String tableName, String key, Object value){
+        SQLiteDatabase db=getWritableDatabase();
+
+        String whereClause;
+        if(value.getClass().equals(String.class)){
+            whereClause=key+" = '"+value.toString()+"'";
+        }
+        else{
+            whereClause=key+" = "+value.toString();
+        }
+        db.delete(tableName,whereClause,null);
+        db.close();
+    }
 }
