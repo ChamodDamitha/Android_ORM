@@ -38,7 +38,7 @@ public class AndroidModel {
                 try {
                     if(annotationHandler.isPrimary(f)){
                         primary_field=f;
-                        if(f.getType().getName().equals("int") || f.getType().equals(Integer.class)){
+                        if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
                             continue;
                         }
                     }
