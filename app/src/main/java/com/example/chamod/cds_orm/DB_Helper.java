@@ -256,4 +256,18 @@ public class DB_Helper extends SQLiteOpenHelper {
         return objects;
     }
 
+    public void updateRecord(String tableName,ContentValues cv,String key,Object value){
+        SQLiteDatabase db=getWritableDatabase();
+
+        String whereClause;
+        if(value.getClass().equals(String.class)){
+            whereClause=key+" = '"+value.toString()+"'";
+        }
+        else{
+            whereClause=key+" = "+value.toString();
+        }
+        db.update(tableName,cv,whereClause,null);
+        db.close();
+    }
+
 }
