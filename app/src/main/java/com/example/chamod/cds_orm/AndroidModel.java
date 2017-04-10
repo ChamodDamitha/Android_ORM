@@ -26,6 +26,7 @@ public class AndroidModel {
     public void save(){
         AnnotationHandler annotationHandler=AnnotationHandler.getInstance(context);
 
+        Field primary_field=null;
 //      getAll all annotated fields
         Field[] fields=this.getClass().getFields();
 
@@ -35,6 +36,13 @@ public class AndroidModel {
 //           a db column
             if(annotationHandler.isAttribute(f)){
                 try {
+                    if(annotationHandler.isPrimary(f)){
+                        primary_field=f;
+                        if(f.getType().getName().equals("int") || f.getType().equals(Integer.class)){
+                            continue;
+                        }
+                    }
+
                     cv.put(annotationHandler.getColumnName(f),(f.get(this)).toString());
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
@@ -45,6 +53,17 @@ public class AndroidModel {
         while(true) {
             try {
                 db_helper.insertRecord(annotationHandler.getTableName(getClass()), cv);
+//           if primary key is auto incremented
+                int id=db_helper.getMaxId(annotationHandler.createTable(this.getClass()).getName(),primary_field.getName());
+                if(id!=-1) {
+                    primary_field.set(this,id);
+                }
+            }
+            catch (IllegalAccessException  e){
+
+            }
+            catch (NullPointerException e){
+
             }
             catch (SQLiteConstraintException e){
                 Log.e("ORM","Duplicate entry for same primary key");

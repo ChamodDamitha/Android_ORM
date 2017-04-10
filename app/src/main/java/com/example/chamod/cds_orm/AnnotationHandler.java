@@ -78,7 +78,7 @@ public class AnnotationHandler {
             return dataType.data_type();
         }
         if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
-            return "INT";
+            return "INTEGER";
         }
         if(f.getType().equals(String.class)){
             return "TEXT";

@@ -13,34 +13,34 @@ public class DBAnnotation {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    @interface TableName {
+    public @interface TableName {
         String table_name();
     }
 
 //    to consider as a DB column
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface DBColumn {}
+    public @interface DBColumn {}
 
 
 //      to specify the column name
   @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface ColumnName{
+    public @interface ColumnName{
         String column_name();
     }
 
 //    to specify the data type
   @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface DataType{
+    public @interface DataType{
         String data_type();
     }
 
 //    to specify as a primary key
   @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface PrimaryKey{}
+    public @interface PrimaryKey{}
 
 
 }

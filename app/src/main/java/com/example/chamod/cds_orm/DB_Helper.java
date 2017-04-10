@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class DB_Helper extends SQLiteOpenHelper {
     private Context context;
     private final static String db_name="TestDB";
-    private final static int db_version=1;
+    private final static int db_version=2;
 
     private static DB_Helper db_helper=null;
 
@@ -74,6 +74,17 @@ public class DB_Helper extends SQLiteOpenHelper {
         db.execSQL(query);
         db.close();
     }
+
+    public int getMaxId(String tableName,String column_name){
+        SQLiteDatabase db=getReadableDatabase();
+        String query="SELECT MAX("+column_name+") as maxx FROM "+tableName+";";
+        Cursor c=db.rawQuery(query,null);
+        while (c.moveToNext()){
+            return c.getInt(c.getColumnIndex("maxx"));
+        }
+        return -1;
+    }
+
 
     public void insertRecord(String tableName,ContentValues contentValues){
         SQLiteDatabase db=getWritableDatabase();
