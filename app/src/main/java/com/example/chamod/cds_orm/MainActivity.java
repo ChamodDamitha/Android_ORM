@@ -31,13 +31,25 @@ public class MainActivity extends AppCompatActivity {
 //        bag.color="BLUE";
 //        bag.save();
 //
-        for(Bag bag:Bag.getAll(Bag.class,this)) {
-            Log.e("ORM", bag.id + "");
-            Log.e("ORM", bag.color + "");
-        }
+//        for(Bag bag:Bag.getAll(Bag.class,this)) {
+//            Log.e("ORM", bag.id + "");
+//            Log.e("ORM", bag.color + "");
+//        }
 
 
+    User user=new User(this,"Chamod","1234","Matara");
 
+//    user.setBag(new Bag(this,"RED"));
+
+    user.save();
+
+
+        User u=User.getFirst(User.class,this);
+
+        Log.e("ORM",u.id+"");
+        Log.e("ORM",u.name+"");
+        Log.e("ORM",u.password+"");
+        Log.e("ORM",u.address+"");
 
     }
 }

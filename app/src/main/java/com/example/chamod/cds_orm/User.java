@@ -2,6 +2,8 @@ package com.example.chamod.cds_orm;
 
 import android.content.Context;
 
+import com.example.chamod.cds_orm.DBModels.Bag;
+
 /**
  * Created by chamod on 4/1/17.
  */
@@ -20,15 +22,26 @@ public class User extends AndroidModel {
     @DBAnnotation.DBColumn
     protected String password;
 
+    @DBAnnotation.DBColumn
+    protected String address;
+
+
+//    @DBAnnotation.DBModel
+//    public Bag bag;
+
 
     public User(Context context){
         super(context);
     }
 
-    public User(Context context,int id,String name,String password) {
+    public User(Context context,String name,String password,String address) {
         super(context);
-        this.id=id;
         this.name=name;
         this.password=password;
+        this.address=address;
     }
+
+//    public void setBag(Bag bag){
+//        this.bag=bag;
+//    }
 }

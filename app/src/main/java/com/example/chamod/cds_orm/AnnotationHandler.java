@@ -101,4 +101,11 @@ public class AnnotationHandler {
         }
         return false;
     }
+
+    public static boolean isDBModel(Field f){
+        if(f.getAnnotation(DBAnnotation.DBModel.class)!=null){
+            return true;
+        }
+        return false;
+    }
 }

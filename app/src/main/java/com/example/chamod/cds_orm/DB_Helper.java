@@ -52,6 +52,13 @@ public class DB_Helper extends SQLiteOpenHelper {
 
 
     public void createTable(DBTable dbTable){
+        Log.e("ORM","table deleting ..........");
+        String del_query="DROP TABLE IF EXISTS "+dbTable.getName()+";";
+
+        SQLiteDatabase db=getWritableDatabase();
+
+        db.execSQL(del_query);
+
         Log.e("ORM","table creating ..........");
 
         String query="CREATE TABLE "+dbTable.getName()+"(";
@@ -70,7 +77,6 @@ public class DB_Helper extends SQLiteOpenHelper {
         }
         query+=");";
 
-        SQLiteDatabase db=getWritableDatabase();
         db.execSQL(query);
         db.close();
     }

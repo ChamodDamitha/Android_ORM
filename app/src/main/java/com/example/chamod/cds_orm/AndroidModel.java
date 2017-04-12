@@ -21,9 +21,22 @@ public class AndroidModel {
     }
 
 
+    public Field getPrimaryField(){
+        Field[] fields=this.getClass().getFields();
+        for(Field f:fields){
+            if(AnnotationHandler.isPrimary(f)){
+                return f;
+            }
+        }
+        return null;
+    }
+
 
 //    inserting a new object to the database
     public void save(){
+
+        DB_Helper db_helper=DB_Helper.getInstance(context);
+
         AnnotationHandler annotationHandler=AnnotationHandler.getInstance(context);
 
         Field primary_field=null;
@@ -33,6 +46,20 @@ public class AndroidModel {
         ContentValues cv=new ContentValues();
 
         for (Field f:fields){
+
+//            if a model object is associated
+            if(AnnotationHandler.isDBModel(f)){
+                try {
+                    AndroidModel androidModel=(AndroidModel) f.get(this);
+                    Log.e("ORM","fgfhfh");
+                    androidModel.save();
+                    Field a_field=androidModel.getPrimaryField();
+                    cv.put(androidModel.getClass().getName()+a_field.getName(),a_field.get(androidModel).toString());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
 //           a db column
             if(annotationHandler.isAttribute(f)){
                 try {
@@ -49,7 +76,6 @@ public class AndroidModel {
                 }
             }
         }
-        DB_Helper db_helper=DB_Helper.getInstance(context);
         while(true) {
             try {
                 db_helper.insertRecord(annotationHandler.getTableName(getClass()), cv);
@@ -69,14 +95,17 @@ public class AndroidModel {
                 Log.e("ORM","Duplicate entry for same primary key");
             }
             catch (SQLiteException e){
-                if(e.getMessage().split(":")[0].equals("no such table")) {
+                e.printStackTrace();
+//                if(e.getMessage().split(":")[0].equals("no such table")) {
                     db_helper.createTable(annotationHandler.createTable(getClass()));
                     continue;
-                }
+//                }
             }
             break;
         }
     }
+
+
 //    .................updating record.............................................................
     public void update(){
         String key=null;
@@ -152,9 +181,9 @@ public class AndroidModel {
     }
 
 //...................delete a model................................................................
-public static void delete(Class<?> clas, Context context,String key,Object value){
-    DB_Helper.getInstance(context).
-            deleteRecords(AnnotationHandler.getInstance(context).createTable(clas).getName(),key,value);
-}
+    public static void delete(Class<?> clas, Context context,String key,Object value){
+        DB_Helper.getInstance(context).
+                deleteRecords(AnnotationHandler.getInstance(context).createTable(clas).getName(),key,value);
+    }
 
 }

@@ -42,5 +42,9 @@ public class DBAnnotation {
     @Target(ElementType.FIELD)
     public @interface PrimaryKey{}
 
+//  to specify a AndroidModel object reference which needs to be saved in thee db as well
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface DBModel{}
 
 }
