@@ -37,19 +37,19 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-    User user=new User(this,"Chamod","1234","Matara");
+    User user=new User(this,"Damitha","123","Matara");
 
-//    user.setBag(new Bag(this,"RED"));
+    user.setBag(new Bag(this,"RED"));
 
     user.save();
 
 
-        User u=User.getFirst(User.class,this);
-
-        Log.e("ORM",u.id+"");
-        Log.e("ORM",u.name+"");
-        Log.e("ORM",u.password+"");
-        Log.e("ORM",u.address+"");
+//        User u=User.getAll(User.class,this).get(1);
+//
+//        Log.e("ORM",u.id+"");
+//        Log.e("ORM",u.name+"");
+//        Log.e("ORM",u.password+"");
+//        Log.e("ORM",u.address+"");
 
     }
 }

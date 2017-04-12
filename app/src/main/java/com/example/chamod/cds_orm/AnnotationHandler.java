@@ -43,6 +43,14 @@ public class AnnotationHandler {
             dbTable=new DBTable(tableName.table_name());
 
             for (Field f:fields){
+//                if a DBModel
+                if(f.getAnnotation(DBAnnotation.DBModel.class)!=null){
+                    Field prim_field=AndroidModel.getPrimaryField(f.getType());
+
+                    dbTable.addAttribute(new Attribute(f.getType().getSimpleName()+prim_field.getName(),
+                            getDataType(prim_field),false));
+                }
+
 //           a db column
                 if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
                     dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary(f)));

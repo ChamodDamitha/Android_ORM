@@ -26,8 +26,8 @@ public class User extends AndroidModel {
     protected String address;
 
 
-//    @DBAnnotation.DBModel
-//    public Bag bag;
+    @DBAnnotation.DBModel
+    public Bag bag;
 
 
     public User(Context context){
@@ -41,7 +41,7 @@ public class User extends AndroidModel {
         this.address=address;
     }
 
-//    public void setBag(Bag bag){
-//        this.bag=bag;
-//    }
+    public void setBag(Bag bag){
+        this.bag=bag;
+    }
 }

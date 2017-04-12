@@ -21,8 +21,8 @@ public class AndroidModel {
     }
 
 
-    public Field getPrimaryField(){
-        Field[] fields=this.getClass().getFields();
+    public static Field getPrimaryField(Class<?> clas){
+        Field[] fields=clas.getFields();
         for(Field f:fields){
             if(AnnotationHandler.isPrimary(f)){
                 return f;
@@ -51,10 +51,10 @@ public class AndroidModel {
             if(AnnotationHandler.isDBModel(f)){
                 try {
                     AndroidModel androidModel=(AndroidModel) f.get(this);
-                    Log.e("ORM","fgfhfh");
                     androidModel.save();
-                    Field a_field=androidModel.getPrimaryField();
-                    cv.put(androidModel.getClass().getName()+a_field.getName(),a_field.get(androidModel).toString());
+                    Field a_field=AndroidModel.getPrimaryField(androidModel.getClass());
+
+                    cv.put(androidModel.getClass().getSimpleName()+a_field.getName(),a_field.get(androidModel).toString());
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
