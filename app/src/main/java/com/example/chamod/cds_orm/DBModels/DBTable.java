@@ -9,6 +9,7 @@ import java.util.ArrayList;
 public class DBTable {
     private String name;
     private ArrayList<Attribute> attributes=new ArrayList<>();
+    private ArrayList<ForeignKey> foreignKeys=new ArrayList<>();
 
     public DBTable(String name) {
         this.name = name;
@@ -24,5 +25,22 @@ public class DBTable {
 
     public void addAttribute(Attribute attribute){
         attributes.add(attribute);
+    }
+
+    public void addForeignKey(ForeignKey foreignKey){
+        foreignKeys.add(foreignKey);
+    }
+
+    public ArrayList<ForeignKey> getForeignKeys() {
+        return foreignKeys;
+    }
+
+    public Attribute getPrimaryAttribute(){
+        for (Attribute a:attributes){
+            if(a.isPrimary()){
+                return a;
+            }
+        }
+        return null;
     }
 }

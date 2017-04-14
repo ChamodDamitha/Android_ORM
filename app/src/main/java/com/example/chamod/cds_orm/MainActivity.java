@@ -2,12 +2,6 @@ package com.example.chamod.cds_orm;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-
-import com.example.chamod.cds_orm.DBModels.Bag;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 

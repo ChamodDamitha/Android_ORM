@@ -2,8 +2,6 @@ package com.example.chamod.cds_orm;
 
 import android.content.Context;
 
-import com.example.chamod.cds_orm.DBModels.Bag;
-
 /**
  * Created by chamod on 4/1/17.
  */

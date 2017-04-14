@@ -1,10 +1,10 @@
 package com.example.chamod.cds_orm;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.example.chamod.cds_orm.DBModels.Attribute;
 import com.example.chamod.cds_orm.DBModels.DBTable;
+import com.example.chamod.cds_orm.DBModels.ForeignKey;
 
 import java.lang.reflect.Field;
 
@@ -14,25 +14,7 @@ import java.lang.reflect.Field;
 
 public class AnnotationHandler {
 
-    private final String Error_TAG="ORM_Exception";
-    private final String Success_TAG="ORM";
-
-    private static AnnotationHandler annotationHandler=null;
-
-    private DB_Helper db_helper;
-
-    private AnnotationHandler(Context context){
-        db_helper=DB_Helper.getInstance(context);
-    }
-
-    public static AnnotationHandler getInstance(Context context){
-        if(annotationHandler==null){
-            annotationHandler=new AnnotationHandler(context);
-        }
-        return annotationHandler;
-    }
-
-    public DBTable createTable(Class<?> clas){
+    public static DBTable createTable(Class<?> clas){
         DBTable dbTable;
 
 //      getAll all annotated fields
@@ -43,15 +25,11 @@ public class AnnotationHandler {
             dbTable=new DBTable(tableName.table_name());
 
             for (Field f:fields){
-//                if a DBModel
+//              if a DBModel
                 if(f.getAnnotation(DBAnnotation.DBModel.class)!=null){
-                    Field prim_field=AndroidModel.getPrimaryField(f.getType());
-
-                    dbTable.addAttribute(new Attribute(f.getType().getSimpleName()+prim_field.getName(),
-                            getDataType(prim_field),false));
+                    dbTable.addForeignKey(new ForeignKey(f.getType(),getColumnName(f)));
                 }
-
-//           a db column
+//              a db column
                 if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
                     dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary(f)));
                 }
@@ -60,7 +38,7 @@ public class AnnotationHandler {
             return dbTable;
         }
         else{
-            Log.e(Error_TAG,"Please specify a table name using @TableName annotation");
+            Log.e("ORM","Please specify a table name using @TableName annotation");
             return null;
         }
     }

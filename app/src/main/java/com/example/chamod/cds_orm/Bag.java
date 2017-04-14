@@ -1,4 +1,4 @@
-package com.example.chamod.cds_orm.DBModels;
+package com.example.chamod.cds_orm;
 
 import android.content.Context;
 

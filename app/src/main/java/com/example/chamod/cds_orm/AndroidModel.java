@@ -37,7 +37,6 @@ public class AndroidModel {
 
         DB_Helper db_helper=DB_Helper.getInstance(context);
 
-        AnnotationHandler annotationHandler=AnnotationHandler.getInstance(context);
 
         Field primary_field=null;
 //      getAll all annotated fields
@@ -61,16 +60,16 @@ public class AndroidModel {
             }
 
 //           a db column
-            if(annotationHandler.isAttribute(f)){
+            if(AnnotationHandler.isAttribute(f)){
                 try {
-                    if(annotationHandler.isPrimary(f)){
+                    if(AnnotationHandler.isPrimary(f)){
                         primary_field=f;
                         if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
                             continue;
                         }
                     }
 
-                    cv.put(annotationHandler.getColumnName(f),(f.get(this)).toString());
+                    cv.put(AnnotationHandler.getColumnName(f),(f.get(this)).toString());
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -78,9 +77,9 @@ public class AndroidModel {
         }
         while(true) {
             try {
-                db_helper.insertRecord(annotationHandler.getTableName(getClass()), cv);
+                db_helper.insertRecord(AnnotationHandler.getTableName(getClass()), cv);
 //           if primary key is auto incremented
-                int id=db_helper.getMaxId(annotationHandler.createTable(this.getClass()).getName(),primary_field.getName());
+                int id=db_helper.getMaxId(AnnotationHandler.createTable(this.getClass()).getName(),primary_field.getName());
                 if(id!=-1) {
                     primary_field.set(this,id);
                 }
@@ -97,7 +96,7 @@ public class AndroidModel {
             catch (SQLiteException e){
                 e.printStackTrace();
 //                if(e.getMessage().split(":")[0].equals("no such table")) {
-                    db_helper.createTable(annotationHandler.createTable(getClass()));
+                    db_helper.createTable(AnnotationHandler.createTable(getClass()));
                     continue;
 //                }
             }
@@ -110,24 +109,36 @@ public class AndroidModel {
     public void update(){
         String key=null;
         Object value=null;
-
-        AnnotationHandler annotationHandler=AnnotationHandler.getInstance(context);
-
 //      getAll all annotated fields
         Field[] fields=this.getClass().getFields();
 
         ContentValues cv=new ContentValues();
 
         for (Field f:fields){
-//           a db column
-            if(annotationHandler.isAttribute(f)){
+//            if a dbmodel
+            if(AnnotationHandler.isDBModel(f)){
                 try {
-                    cv.put(annotationHandler.getColumnName(f),(f.get(this)).toString());
+                    AndroidModel androidModel=(AndroidModel) f.get(this);
+                    Field prim_field=AndroidModel.getPrimaryField(androidModel.getClass());
+                    if (androidModel!=null){
+                        cv.put(androidModel.getClass().getSimpleName()+prim_field.getName(),
+                                prim_field.get(androidModel).toString());
+                        androidModel.update();
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
+//           a db column
+            if(AnnotationHandler.isAttribute(f)){
+                try {
+                    cv.put(AnnotationHandler.getColumnName(f),(f.get(this)).toString());
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
 
-                if(annotationHandler.isPrimary(f)){
+                if(AnnotationHandler.isPrimary(f)){
                     try {
                         key = f.getName();
                         value = f.get(this);
@@ -144,7 +155,7 @@ public class AndroidModel {
 
         while(true) {
             try {
-                db_helper.updateRecord(annotationHandler.getTableName(getClass()), cv,key,value);
+                db_helper.updateRecord(AnnotationHandler.getTableName(getClass()), cv,key,value);
             }
             catch (SQLiteConstraintException e){
                 e.printStackTrace();
@@ -166,24 +177,24 @@ public class AndroidModel {
 //..................retrieving data back from database.............................................
     public static <T>T getFirst(Class<T> clas,Context context){
         return (T)DB_Helper.getInstance(context).readFirstRecord(clas,
-                AnnotationHandler.getInstance(context).createTable(clas));
+                AnnotationHandler.createTable(clas));
 
     }
 
     public static <T>ArrayList<T> getAll(Class<T> clas, Context context){
         return DB_Helper.getInstance(context).readAllRecords(clas,
-                AnnotationHandler.getInstance(context).createTable(clas));
+                AnnotationHandler.createTable(clas));
 
     }
     public static <T>ArrayList<T> get(Class<T> clas, Context context,String key,Object value){
         return DB_Helper.getInstance(context).readRecords(clas,
-                AnnotationHandler.getInstance(context).createTable(clas),key,value);
+                AnnotationHandler.createTable(clas),key,value);
     }
 
 //...................delete a model................................................................
     public static void delete(Class<?> clas, Context context,String key,Object value){
         DB_Helper.getInstance(context).
-                deleteRecords(AnnotationHandler.getInstance(context).createTable(clas).getName(),key,value);
+                deleteRecords(AnnotationHandler.createTable(clas).getName(),key,value);
     }
 
 }
