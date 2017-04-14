@@ -2,6 +2,7 @@ package com.example.chamod.cds_orm;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,19 +32,24 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-    User user=new User(this,"Damitha","123","Matara");
+//    User user=new User(this,"Damitha","123","Matara");
+//
+//    user.setBag(new Bag(this,"RED"));
+//
+//    user.save();
 
-    user.setBag(new Bag(this,"RED"));
 
-    user.save();
-
-
-//        User u=User.getAll(User.class,this).get(1);
+        User u=User.getFirst(User.class,this);
 //
 //        Log.e("ORM",u.id+"");
 //        Log.e("ORM",u.name+"");
 //        Log.e("ORM",u.password+"");
 //        Log.e("ORM",u.address+"");
+
+        Bag b=u.bag;
+
+        Log.e("ORM",b.id+"");
+        Log.e("ORM",b.color+"");
 
     }
 }

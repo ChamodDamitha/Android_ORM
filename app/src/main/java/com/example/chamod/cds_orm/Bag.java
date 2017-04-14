@@ -19,6 +19,10 @@ public class Bag extends AndroidModel {
     @DBAnnotation.DBColumn
     public String color;
 
+    public Bag(Context context){
+        super(context);
+    }
+
     public Bag(Context context,String color) {
         super(context);
         this.color=color;

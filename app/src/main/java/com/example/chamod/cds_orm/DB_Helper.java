@@ -64,19 +64,26 @@ public class DB_Helper extends SQLiteOpenHelper {
 
         String query="CREATE TABLE "+dbTable.getName()+"(";
 
-        int i=1,size=dbTable.getAttributes().size();
+        int i=1;
         for (Attribute a:dbTable.getAttributes()
              ) {
+            if(i!=1){
+                query+=",";
+            }
             query+=a.getName()+" "+a.getType();
             if(a.isPrimary()){
                 query+=" PRIMARY KEY";
             }
-            if(i!=size){
-                query+=",";
-            }
             i++;
         }
+
+        for(ForeignKey foreignKey:dbTable.getForeignKeys()){
+            query+=","+foreignKey.getName()+" "+foreignKey.getType();
+        }
+
         query+=");";
+///////////////////////////////////////////
+        Log.e("ORM",query);
 
         db.execSQL(query);
         db.close();
@@ -140,16 +147,16 @@ public class DB_Helper extends SQLiteOpenHelper {
 //                set foreign key refered objects
                     for (ForeignKey foreignKey:dbTable.getForeignKeys()){
                         Object sub_object=null;
-                        if (foreignKey.getType().equals(String.class)) {
+                        if (foreignKey.getType().equals("TEXT")) {
                             sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
                                     foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
-                        } else if (foreignKey.getType().equals(int.class) || foreignKey.getType().equals(Integer.class)) {
+                        } else if (foreignKey.getType().equals("INTEGER")) {
                             sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
                                     foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
                         }
                         try {
-                            Field f = clas.getField(foreignKey.getField_name());
-                            f.set(object,sub_object);
+                            Field f = clas.getField(foreignKey.getRef_name());
+                            f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
                         } catch (NoSuchFieldException|IllegalAccessException e) {
                             e.printStackTrace();
                         }
@@ -158,6 +165,11 @@ public class DB_Helper extends SQLiteOpenHelper {
         }
         return null;
     }
+
+    private <T>ArrayList<T> getObjectList(Class<T> clas, ArrayList object){
+        return object;
+    }
+
 
 
     public <T>ArrayList<T> readAllRecords(Class<T> clas, DBTable dbTable){

@@ -96,9 +96,8 @@ public class AndroidModel {
             catch (SQLiteException e){
                 e.printStackTrace();
 //                if(e.getMessage().split(":")[0].equals("no such table")) {
-                    db_helper.createTable(AnnotationHandler.createTable(getClass()));
-                    continue;
-//                }
+                db_helper.createTable(AnnotationHandler.createTable(getClass()));
+                continue;
             }
             break;
         }

@@ -7,24 +7,22 @@ import com.example.chamod.cds_orm.AnnotationHandler;
  */
 
 public class ForeignKey{
-    private String field_name;
     private Class<?> ref_class;
-    private AnnotationHandler annotationHandler;
+    private String ref_name;
 
-    public ForeignKey(Class<?> ref_class,String field_name) {
+    public ForeignKey(Class<?> ref_class,String ref_name) {
         this.ref_class=ref_class;
-        this.field_name=field_name;
-        this.annotationHandler=AnnotationHandler.getInstance();
+        this.ref_name=ref_name;
     }
 
 
     public String getName() {
-        DBTable dbTable=annotationHandler.createTable(ref_class);
-        return dbTable.getName()+dbTable.getPrimaryAttribute().getName();
+        DBTable dbTable=AnnotationHandler.createTable(ref_class);
+        return ref_class.getSimpleName()+dbTable.getPrimaryAttribute().getName();
     }
 
     public String getType() {
-        DBTable dbTable=annotationHandler.createTable(ref_class);
+        DBTable dbTable=AnnotationHandler.createTable(ref_class);
         return dbTable.getPrimaryAttribute().getType();
     }
 
@@ -33,6 +31,11 @@ public class ForeignKey{
     }
 
     public String getField_name() {
-        return field_name;
+        DBTable dbTable=AnnotationHandler.createTable(ref_class);
+        return dbTable.getPrimaryAttribute().getName();
+    }
+
+    public String getRef_name(){
+        return this.ref_name;
     }
 }
