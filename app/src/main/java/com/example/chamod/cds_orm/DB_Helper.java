@@ -203,6 +203,25 @@ public class DB_Helper extends SQLiteOpenHelper {
                             e.printStackTrace();
                         }
                     }
+//                    set foreign key refered objects
+                    for (ForeignKey foreignKey:dbTable.getForeignKeys()){
+                        Object sub_object=null;
+                        if (foreignKey.getType().equals("TEXT")) {
+                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
+                                    foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
+                        } else if (foreignKey.getType().equals("INTEGER")) {
+                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
+                                    foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
+                        }
+                        try {
+                            Field f = clas.getField(foreignKey.getRef_name());
+                            f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
+                        } catch (NoSuchFieldException|IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
                     objects.add((T) object);
                 }
                 catch (InstantiationException e) {
@@ -268,6 +287,24 @@ public class DB_Helper extends SQLiteOpenHelper {
                             e.printStackTrace();
                         }
                     }
+//                    set foreign key refered objects
+                    for (ForeignKey foreignKey:dbTable.getForeignKeys()){
+                        Object sub_object=null;
+                        if (foreignKey.getType().equals("TEXT")) {
+                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
+                                    foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
+                        } else if (foreignKey.getType().equals("INTEGER")) {
+                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
+                                    foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
+                        }
+                        try {
+                            Field f = clas.getField(foreignKey.getRef_name());
+                            f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
+                        } catch (NoSuchFieldException|IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                     objects.add((T) object);
                 }
                 catch (InstantiationException e) {

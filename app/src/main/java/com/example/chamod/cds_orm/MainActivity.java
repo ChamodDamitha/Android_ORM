@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 //    user.save();
 
 
-        User u=User.getFirst(User.class,this);
+        User u=User.get(User.class,this,"id",1).get(0);
 //
 //        Log.e("ORM",u.id+"");
 //        Log.e("ORM",u.name+"");
