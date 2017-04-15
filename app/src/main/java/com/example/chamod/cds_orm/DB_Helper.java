@@ -132,13 +132,8 @@ public class DB_Helper extends SQLiteOpenHelper {
                             ) {
                             try {
                                 Field f = clas.getField(attribute.getName());
-//                            check type of the field
-                                if (f.getType().equals(String.class)) {
-                                    f.set(object, cursor.getString(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
-                                } else if (f.getType().equals(int.class) || f.getType().equals(Integer.class)) {
-                                    f.set(object, cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
-                                }
-                            } catch (NoSuchFieldException|IllegalAccessException e) {
+                                setObjectFieldValue(object,f,cursor);
+                            } catch (NoSuchFieldException e) {
                                 e.printStackTrace();
                             }
 
@@ -147,13 +142,15 @@ public class DB_Helper extends SQLiteOpenHelper {
 //                set foreign key refered objects
                     for (ForeignKey foreignKey:dbTable.getForeignKeys()){
                         Object sub_object=null;
-                        if (foreignKey.getType().equals("TEXT")) {
+
+                        if (foreignKey.getRef_Data_Class().equals(String.class)) {
                             sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
                                     foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
-                        } else if (foreignKey.getType().equals("INTEGER")) {
+                        } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
                             sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
                                     foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
                         }
+
                         try {
                             Field f = clas.getField(foreignKey.getRef_name());
                             f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
@@ -192,13 +189,7 @@ public class DB_Helper extends SQLiteOpenHelper {
                             ) {
                         try {
                             Field f=clas.getField(attribute.getName());
-//                            check type of the field
-                            if(f.getType().equals(String.class)){
-                                f.set(object,cursor.getString(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
-                            }
-                            else if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
-                                f.set(object,cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
-                            }
+                            setObjectFieldValue(object,f,cursor);
                         } catch (NoSuchFieldException e) {
                             e.printStackTrace();
                         }
@@ -206,13 +197,14 @@ public class DB_Helper extends SQLiteOpenHelper {
 //                    set foreign key refered objects
                     for (ForeignKey foreignKey:dbTable.getForeignKeys()){
                         Object sub_object=null;
-                        if (foreignKey.getType().equals("TEXT")) {
+                        if (foreignKey.getRef_Data_Class().equals(String.class)) {
                             sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
                                     foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
-                        } else if (foreignKey.getType().equals("INTEGER")) {
+                        } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
                             sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
                                     foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
                         }
+
                         try {
                             Field f = clas.getField(foreignKey.getRef_name());
                             f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
@@ -247,6 +239,20 @@ public class DB_Helper extends SQLiteOpenHelper {
     }
 
 
+    private void setObjectFieldValue(Object object,Field f,Cursor cursor){
+        try {
+            if (f.getType().equals(String.class)) {
+                f.set(object, cursor.getString(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+            } else if (f.getType().equals(int.class) || f.getType().equals(Integer.class)) {
+                f.set(object, cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+            }
+        }
+        catch (IllegalAccessException e){
+
+        }
+    }
+
+
 
     public <T>ArrayList<T> readRecords(Class<T> clas, DBTable dbTable,String key,Object value){
         ArrayList<T> objects=new ArrayList<>();
@@ -272,17 +278,10 @@ public class DB_Helper extends SQLiteOpenHelper {
                 try {
                     Object object = cons.newInstance(context);
 
-                    for (Attribute attribute : dbTable.getAttributes()
-                            ) {
+                    for (Attribute attribute : dbTable.getAttributes()) {
                         try {
                             Field f=clas.getField(attribute.getName());
-//                            check type of the field
-                            if(f.getType().equals(String.class)){
-                                f.set(object,cursor.getString(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
-                            }
-                            else if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
-                                f.set(object,cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
-                            }
+                            setObjectFieldValue(object,f,cursor);
                         } catch (NoSuchFieldException e) {
                             e.printStackTrace();
                         }
@@ -290,13 +289,14 @@ public class DB_Helper extends SQLiteOpenHelper {
 //                    set foreign key refered objects
                     for (ForeignKey foreignKey:dbTable.getForeignKeys()){
                         Object sub_object=null;
-                        if (foreignKey.getType().equals("TEXT")) {
+                        if (foreignKey.getRef_Data_Class().equals(String.class)) {
                             sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
                                     foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
-                        } else if (foreignKey.getType().equals("INTEGER")) {
+                        } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
                             sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
                                     foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
                         }
+
                         try {
                             Field f = clas.getField(foreignKey.getRef_name());
                             f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));

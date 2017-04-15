@@ -9,11 +9,14 @@ public class Attribute {
     private String type;
     private boolean isPrimary;
 
+    private Class<?> claz;
 
-    public Attribute(String name, String type, boolean isPrimary) {
+
+    public Attribute(String name, String type, boolean isPrimary,Class<?> claz) {
         this.name = name;
         this.type = type;
         this.isPrimary = isPrimary;
+        this.claz=claz;
     }
 
     public String getName() {
@@ -28,6 +31,7 @@ public class Attribute {
         return isPrimary;
     }
 
-
-
+    public Class<?> getClaz() {
+        return claz;
+    }
 }

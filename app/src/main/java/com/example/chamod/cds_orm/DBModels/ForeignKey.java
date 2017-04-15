@@ -26,8 +26,9 @@ public class ForeignKey{
         return dbTable.getPrimaryAttribute().getType();
     }
 
-    public Class<?> getRef_class() {
-        return ref_class;
+    public Class<?> getRef_Data_Class() {
+        DBTable dbTable=AnnotationHandler.createTable(ref_class);
+        return dbTable.getPrimaryAttribute().getClaz();
     }
 
     public String getField_name() {
@@ -37,5 +38,9 @@ public class ForeignKey{
 
     public String getRef_name(){
         return this.ref_name;
+    }
+
+    public Class<?> getRef_class() {
+        return ref_class;
     }
 }

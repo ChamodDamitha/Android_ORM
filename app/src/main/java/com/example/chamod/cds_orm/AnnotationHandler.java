@@ -31,7 +31,7 @@ public class AnnotationHandler {
                 }
 //              a db column
                 if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
-                    dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary(f)));
+                    dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary(f),f.getType()));
                 }
             }
 
@@ -94,4 +94,6 @@ public class AnnotationHandler {
         }
         return false;
     }
+
+
 }

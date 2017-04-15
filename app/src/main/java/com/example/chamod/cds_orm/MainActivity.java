@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.chamod.cds_orm.DBModels.DBTable;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -31,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 //            Log.e("ORM", bag.color + "");
 //        }
 
-
+//
 //    User user=new User(this,"Damitha","123","Matara");
 //
 //    user.setBag(new Bag(this,"RED"));
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.e("ORM",b.id+"");
         Log.e("ORM",b.color+"");
+
 
     }
 }
