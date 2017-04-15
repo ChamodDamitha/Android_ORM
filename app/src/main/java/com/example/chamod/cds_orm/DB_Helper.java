@@ -3,7 +3,9 @@ package com.example.chamod.cds_orm;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -118,8 +120,196 @@ public class DB_Helper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void saveModel(AndroidModel model){
 
-//    ..........................Read records........................................................
+        DB_Helper db_helper=DB_Helper.getInstance(context);
+
+
+        Field primary_field=null,android_model_field=null,android_modellist_field=null;
+//      getAll all annotated fields
+        Field[] fields=model.getClass().getFields();
+
+        ContentValues cv=new ContentValues();
+
+        for (Field f:fields){
+
+//            if a model object is associated
+            if(AnnotationHandler.isDBModel(f)){
+                android_model_field=f;
+            }
+//            if a modellist
+            else if (AnnotationHandler.isDBModelList(f)){
+                android_modellist_field=f;
+            }
+//           a db column
+            else if(AnnotationHandler.isAttribute(f)){
+                try {
+                    if(AnnotationHandler.isPrimary(f)){
+                        primary_field=f;
+                        if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
+                            continue;
+                        }
+                    }
+
+                    cv.put(AnnotationHandler.getColumnName(f),(f.get(model)).toString());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        while(true) {
+            try {
+                db_helper.insertRecord(AnnotationHandler.getTableName(model.getClass()), cv);
+
+//           if primary key is auto incremented
+                int id=db_helper.getMaxId(AnnotationHandler.createTable(model.getClass()).getName(),primary_field.getName());
+
+                if(id!=-1) {
+                    primary_field.set(model,id);
+
+                    if(android_model_field!=null){
+                        try {
+                            AndroidModel androidModel=(AndroidModel) android_model_field.get(model);
+                            saveModelWithExtraValue(androidModel,model.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(model.getClass()).getName(),id);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(android_modellist_field!=null){
+
+                        ArrayList<AndroidModel> androidModels =(ArrayList<AndroidModel>)android_modellist_field.get(model);
+                        for (AndroidModel androidModel:androidModels){
+                            saveModelWithExtraValue(androidModel,model.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(model.getClass()).getName(),id);
+                        }
+                    }
+
+
+                }
+            }
+            catch (IllegalAccessException  e){
+
+            }
+            catch (NullPointerException e){
+
+            }
+            catch (SQLiteConstraintException e){
+                Log.e("ORM","Duplicate entry for same primary key");
+            }
+            catch (SQLiteException e){
+                e.printStackTrace();
+//                if(e.getMessage().split(":")[0].equals("no such table")) {
+                db_helper.createTable(AnnotationHandler.createTable(model.getClass()));
+//                }
+                continue;
+            }
+            break;
+        }
+    }
+
+    private void saveModelWithExtraValue(AndroidModel model, String key, Object value) {
+
+        DB_Helper db_helper=DB_Helper.getInstance(context);
+
+
+        Field primary_field=null,android_model_field=null,android_modellist_field=null;
+//      getAll all annotated fields
+        Field[] fields=model.getClass().getFields();
+
+        ContentValues cv=new ContentValues();
+
+        for (Field f:fields){
+
+//            if a model object is associated
+            if(AnnotationHandler.isDBModel(f)){
+                android_model_field=f;
+            }
+//            if a modellist
+            else if (AnnotationHandler.isDBModelList(f)){
+                android_modellist_field=f;
+            }
+
+//           a db column
+            else if(AnnotationHandler.isAttribute(f)){
+                try {
+                    if(AnnotationHandler.isPrimary(f)){
+                        primary_field=f;
+                        if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
+                            continue;
+                        }
+                    }
+
+                    cv.put(AnnotationHandler.getColumnName(f),(f.get(model)).toString());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+//      set extra value
+        cv.put(key,value.toString());
+
+
+        while(true) {
+            try {
+                db_helper.insertRecord(AnnotationHandler.getTableName(model.getClass()), cv);
+//           if primary key is auto incremented
+                int id=db_helper.getMaxId(AnnotationHandler.createTable(model.getClass()).getName(),primary_field.getName());
+                if(id!=-1) {
+                    primary_field.set(model,id);
+
+                    if(android_model_field!=null){
+                        try {
+                            AndroidModel androidModel=(AndroidModel) android_model_field.get(model);
+                            saveModelWithExtraValue(androidModel,model.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(model.getClass()).getName(),id);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(android_modellist_field!=null){
+                        ArrayList<AndroidModel> androidModels =(ArrayList<AndroidModel>)android_modellist_field.get(model);
+                        for (AndroidModel androidModel:androidModels){
+                            saveModelWithExtraValue(androidModel,model.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(model.getClass()).getName(),id);
+                        }
+                    }
+
+
+                }
+            }
+            catch (IllegalAccessException  e){
+
+            }
+            catch (NullPointerException e){
+
+            }
+            catch (SQLiteConstraintException e){
+                Log.e("ORM","Duplicate entry for same primary key");
+            }
+            catch (SQLiteException e){
+                e.printStackTrace();
+                if(e.getMessage().split(":")[0].equals("no such table")) {
+                    db_helper.createTable(AnnotationHandler.createTable(model.getClass()));
+                }
+                else{
+                    if(value.getClass().equals(String.class)) {
+                        db_helper.addTableColumn(AnnotationHandler.createTable(model.getClass()), key,"TEXT");
+                    }
+                    else if(value.getClass().equals(Integer.class) || value.getClass().equals(int.class)) {
+                        db_helper.addTableColumn(AnnotationHandler.createTable(model.getClass()), key,"INTEGER");
+                    }
+                }
+                continue;
+            }
+            break;
+        }
+    }
+
+
+
+
+    //    ..........................Read records........................................................
     private Object getInstanceOf(Class<?> clas){
         try {
             Class<?> c = Class.forName(clas.getName());
@@ -258,7 +448,82 @@ public class DB_Helper extends SQLiteOpenHelper {
 
 //    ............................update a record...................................................
 
-    public void updateRecord(String tableName,ContentValues cv,String key,Object value){
+    public void updateModel(AndroidModel model){
+        String key=null;
+        Object value=null;
+//      getAll all annotated fields
+        Field[] fields=model.getClass().getFields();
+
+        ContentValues cv=new ContentValues();
+
+        for (Field f:fields){
+//            if a dbmodel
+            if(AnnotationHandler.isDBModel(f)){
+                try {
+                    AndroidModel androidModel=(AndroidModel) f.get(model);
+                    Field prim_field=AndroidModel.getPrimaryField(androidModel.getClass());
+                    if (androidModel!=null){
+//                        cv.put(androidModel.getClass().getSimpleName()+prim_field.getName(),
+//                                prim_field.get(androidModel).toString());
+                        androidModel.update();
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+//            if a dbmodel list
+            if(AnnotationHandler.isDBModelList(f)){
+                try {
+                    ArrayList<AndroidModel> androidModels =(ArrayList<AndroidModel>)f.get(model);
+                    for (AndroidModel androidModel:androidModels){
+                        androidModel.update();
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
+//           a db column
+            if(AnnotationHandler.isAttribute(f)){
+                try {
+                    cv.put(AnnotationHandler.getColumnName(f),(f.get(model)).toString());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+                if(AnnotationHandler.isPrimary(f)){
+                    try {
+                        key = f.getName();
+                        value = f.get(model);
+                    }
+                    catch(IllegalAccessException e){
+
+                    }
+                }
+            }
+        }
+
+        while(true) {
+            try {
+                updateRecord(AnnotationHandler.getTableName(model.getClass()), cv,key,value);
+            }
+            catch (SQLiteConstraintException e){
+                e.printStackTrace();
+//                Log.e("ORM","Duplicate entry for same primary key");
+            }
+            catch (SQLiteException e){
+                e.printStackTrace();
+//                if(e.getMessage().split(":")[0].equals("no such table")) {
+//                    db_helper.createTable(annotationHandler.createTable(getClass()));
+//                    continue;
+//                }
+            }
+            break;
+        }
+    }
+
+
+    private void updateRecord(String tableName,ContentValues cv,String key,Object value){
         SQLiteDatabase db=getWritableDatabase();
 
         String whereClause;

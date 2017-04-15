@@ -1,6 +1,10 @@
-package com.example.chamod.cds_orm;
+package com.example.chamod.cds_orm.ExampleClasses;
 
 import android.content.Context;
+
+import com.example.chamod.cds_orm.AndroidModel;
+import com.example.chamod.cds_orm.DBAnnotation;
+import com.example.chamod.cds_orm.ExampleClasses.Bag;
 
 import java.util.ArrayList;
 
@@ -14,16 +18,16 @@ public class User extends AndroidModel {
 
     @DBAnnotation.DBColumn
     @DBAnnotation.PrimaryKey
-    protected int id;
+    public int id;
 
     @DBAnnotation.DBColumn
-    protected String name;
+    public String name;
 
     @DBAnnotation.DBColumn
-    protected String password;
+    public String password;
 
     @DBAnnotation.DBColumn
-    protected String address;
+    public String address;
 
 
     @DBAnnotation.DBModelList(model_class = Bag.class)

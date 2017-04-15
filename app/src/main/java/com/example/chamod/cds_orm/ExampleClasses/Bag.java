@@ -1,4 +1,4 @@
-package com.example.chamod.cds_orm;
+package com.example.chamod.cds_orm.ExampleClasses;
 
 import android.content.Context;
 

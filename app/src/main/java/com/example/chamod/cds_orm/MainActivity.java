@@ -4,7 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.chamod.cds_orm.DBModels.DBTable;
+import com.example.chamod.cds_orm.ExampleClasses.Bag;
+import com.example.chamod.cds_orm.ExampleClasses.User;
 
 import java.util.ArrayList;
 
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 //
 //        Bag bag=new Bag(this);
 //        bag.color="BLUE";
-//        bag.save();
+//        bag.saveModel();
 //
 //        for(Bag bag:Bag.getAll(Bag.class,this)) {
 //            Log.e("ORM", bag.id + "");
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 //
-//    User user=new User(this,"Damitha","123","Matara");
+//   User user=new User(this,"Test","24124235","Colombo");
 //
 //        ArrayList<Bag> bags=new ArrayList<>();
 //        bags.add(new Bag(this,"RED"));
@@ -46,32 +47,36 @@ public class MainActivity extends AppCompatActivity {
 //    user.setBags(bags);
 //
 //    user.save();
-
-
-//        User u=User.get(User.class,this,"id",2).get(0);
-
+//
+//
+//        User u=User.get(User.class,this,"name","Test").get(1);
+//
 //        Log.e("ORM",u.id+"");
 //        Log.e("ORM",u.name+"");
 //        Log.e("ORM",u.password+"");
 //        Log.e("ORM",u.address+"");
-
+//
 //        Bag b=u.bags.get(1);
 //
 //        Log.e("ORM",b.id+"");
 //        Log.e("ORM",b.color+"");
+
+//        u.id=7;
 //
+//        u.update();
+////
 //        b.color="changedagain";
 
-        User.delete(User.class,this,"id",2);
+//        User.delete(User.class,this,"id",2);
 
 
 //        User u=User.get(User.class,this,"id",2).get(0);
 //
 //        Log.e("ORM",b.id+"");
 //        Log.e("ORM",b.color+"");
-        Bag bag= Bag.get(Bag.class,this,"id",4).get(0);
-//
-        Log.e("ORM",bag.color);
+//        Bag bag= Bag.get(Bag.class,this,"id",4).get(0);
+////
+//        Log.e("ORM",bag.color);
 
     }
 }
