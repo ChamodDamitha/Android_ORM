@@ -240,8 +240,19 @@ public class AndroidModel {
                     AndroidModel androidModel=(AndroidModel) f.get(this);
                     Field prim_field=AndroidModel.getPrimaryField(androidModel.getClass());
                     if (androidModel!=null){
-                        cv.put(androidModel.getClass().getSimpleName()+prim_field.getName(),
-                                prim_field.get(androidModel).toString());
+//                        cv.put(androidModel.getClass().getSimpleName()+prim_field.getName(),
+//                                prim_field.get(androidModel).toString());
+                        androidModel.update();
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+//            if a dbmodel list
+            if(AnnotationHandler.isDBModelList(f)){
+                try {
+                    ArrayList<AndroidModel> androidModels =(ArrayList<AndroidModel>)f.get(this);
+                    for (AndroidModel androidModel:androidModels){
                         androidModel.update();
                     }
                 } catch (IllegalAccessException e) {

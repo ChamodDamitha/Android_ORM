@@ -50,16 +50,23 @@ public class MainActivity extends AppCompatActivity {
 
         User u=User.get(User.class,this,"id",2).get(0);
 
-        Log.e("ORM",u.id+"");
-        Log.e("ORM",u.name+"");
-        Log.e("ORM",u.password+"");
-        Log.e("ORM",u.address+"");
+//        Log.e("ORM",u.id+"");
+//        Log.e("ORM",u.name+"");
+//        Log.e("ORM",u.password+"");
+//        Log.e("ORM",u.address+"");
 
         Bag b=u.bags.get(1);
 
         Log.e("ORM",b.id+"");
         Log.e("ORM",b.color+"");
 
+        b.color="changedagain";
+
+        u.update();
+
+
+        Log.e("ORM",b.id+"");
+        Log.e("ORM",b.color+"");
 //        Bag bag= Bag.get(Bag.class,this,"Userid",2).get(0);
 //
 //        Log.e("ORM",bag.color);
