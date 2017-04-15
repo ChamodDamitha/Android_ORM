@@ -7,6 +7,7 @@ import com.example.chamod.cds_orm.DBModels.DBTable;
 import com.example.chamod.cds_orm.DBModels.ForeignKey;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 /**
  * Created by chamod on 4/2/17.
@@ -28,6 +29,11 @@ public class AnnotationHandler {
 //              if a DBModel
                 if(f.getAnnotation(DBAnnotation.DBModel.class)!=null){
                     dbTable.addForeignKey(new ForeignKey(clas,f.getType(),getColumnName(f)));
+                }
+//                if a DBModellist
+                if(f.getAnnotation(DBAnnotation.DBModelList.class)!=null){
+                    DBAnnotation.DBModelList dbModelListAnnot=f.getAnnotation(DBAnnotation.DBModelList.class);
+                    dbTable.addForeignKey(new ForeignKey(clas,dbModelListAnnot.model_class(),getColumnName(f)));
                 }
 //              a db column
                 if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
@@ -95,5 +101,11 @@ public class AnnotationHandler {
         return false;
     }
 
+    public static boolean isDBModelList(Field f){
+        if(f.getAnnotation(DBAnnotation.DBModelList.class)!=null){
+            return true;
+        }
+        return false;
+    }
 
 }

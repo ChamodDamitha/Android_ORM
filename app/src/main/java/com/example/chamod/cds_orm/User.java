@@ -2,6 +2,8 @@ package com.example.chamod.cds_orm;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+
 /**
  * Created by chamod on 4/1/17.
  */
@@ -24,8 +26,8 @@ public class User extends AndroidModel {
     protected String address;
 
 
-    @DBAnnotation.DBModel
-    public Bag bag;
+    @DBAnnotation.DBModelList(model_class = Bag.class)
+    public ArrayList<Bag> bags;
 
 
     public User(Context context){
@@ -39,7 +41,12 @@ public class User extends AndroidModel {
         this.address=address;
     }
 
-    public void setBag(Bag bag){
-        this.bag=bag;
+//    public void setBag(Bag bag){
+//        this.bag=bag;
+//    }
+
+
+    public void setBags(ArrayList<Bag> bags) {
+        this.bags = bags;
     }
 }

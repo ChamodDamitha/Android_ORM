@@ -50,6 +50,8 @@ public class DBAnnotation {
 //  to specify a AndroidModel object list reference which needs to be saved in the db as well
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    public @interface DBModelList{}
+    public @interface DBModelList{
+        Class<?> model_class();
+    }
 
 }

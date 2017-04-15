@@ -38,7 +38,7 @@ public class AndroidModel {
         DB_Helper db_helper=DB_Helper.getInstance(context);
 
 
-        Field primary_field=null,android_model_field=null;
+        Field primary_field=null,android_model_field=null,android_modellist_field=null;
 //      getAll all annotated fields
         Field[] fields=this.getClass().getFields();
 
@@ -49,6 +49,10 @@ public class AndroidModel {
 //            if a model object is associated
             if(AnnotationHandler.isDBModel(f)){
                 android_model_field=f;
+            }
+//            if a modellist
+            else if (AnnotationHandler.isDBModelList(f)){
+                android_modellist_field=f;
             }
 //           a db column
             else if(AnnotationHandler.isAttribute(f)){
@@ -69,8 +73,10 @@ public class AndroidModel {
         while(true) {
             try {
                 db_helper.insertRecord(AnnotationHandler.getTableName(getClass()), cv);
+
 //           if primary key is auto incremented
                 int id=db_helper.getMaxId(AnnotationHandler.createTable(this.getClass()).getName(),primary_field.getName());
+
                 if(id!=-1) {
                     primary_field.set(this,id);
 
@@ -83,7 +89,14 @@ public class AndroidModel {
                             e.printStackTrace();
                         }
                     }
+                    if(android_modellist_field!=null){
 
+                        ArrayList<AndroidModel> androidModels =(ArrayList<AndroidModel>)android_modellist_field.get(this);
+                        for (AndroidModel androidModel:androidModels){
+                            androidModel.saveWithExtraValue(this.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(this.getClass()).getName(),id);
+                        }
+                    }
 
 
                 }
@@ -113,7 +126,7 @@ public class AndroidModel {
         DB_Helper db_helper=DB_Helper.getInstance(context);
 
 
-        Field primary_field=null,android_model_field=null;
+        Field primary_field=null,android_model_field=null,android_modellist_field=null;
 //      getAll all annotated fields
         Field[] fields=this.getClass().getFields();
 
@@ -124,6 +137,10 @@ public class AndroidModel {
 //            if a model object is associated
             if(AnnotationHandler.isDBModel(f)){
                 android_model_field=f;
+            }
+//            if a modellist
+            else if (AnnotationHandler.isDBModelList(f)){
+                android_modellist_field=f;
             }
 
 //           a db column
@@ -145,6 +162,7 @@ public class AndroidModel {
 //      set extra value
         cv.put(key,value.toString());
 
+
         while(true) {
             try {
                 db_helper.insertRecord(AnnotationHandler.getTableName(getClass()), cv);
@@ -162,6 +180,18 @@ public class AndroidModel {
                             e.printStackTrace();
                         }
                     }
+                    if(android_modellist_field!=null){
+                        ArrayList<AndroidModel> androidModels =(ArrayList<AndroidModel>)android_modellist_field.get(this);
+                        for (AndroidModel androidModel:androidModels){
+
+                            Log.e("ORM",this.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(this.getClass()).getName()+" - "+id);
+
+                            androidModel.saveWithExtraValue(this.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(this.getClass()).getName(),id);
+                        }
+                    }
+
 
                 }
             }

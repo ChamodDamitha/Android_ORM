@@ -159,6 +159,7 @@ public class DB_Helper extends SQLiteOpenHelper {
 //
               Field prim_field=AndroidModel.getPrimaryField(clas);
 
+
               if(prim_field.getType().equals(String.class)){
                   sub_object=AndroidModel.get(foreignKey.getRef_class(),context,
                           foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(prim_field.getName())));
@@ -169,8 +170,14 @@ public class DB_Helper extends SQLiteOpenHelper {
               }
 
             try {
+
                 Field f = clas.getField(foreignKey.getRef_name());
-                f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
+                if(f.getType().equals(ArrayList.class)){
+                    f.set(object, getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object));
+                }
+                else {
+                    f.set(object, getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object).get(0));
+                }
             } catch (NoSuchFieldException|IllegalAccessException e) {
                 e.printStackTrace();
             }

@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.example.chamod.cds_orm.DBModels.DBTable;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -36,23 +38,31 @@ public class MainActivity extends AppCompatActivity {
 //
 //    User user=new User(this,"Damitha","123","Matara");
 //
-//    user.setBag(new Bag(this,"RED"));
+//        ArrayList<Bag> bags=new ArrayList<>();
+//        bags.add(new Bag(this,"RED"));
+//        bags.add(new Bag(this,"BLUE"));
+//        bags.add(new Bag(this,"GREEN"));
+//
+//    user.setBags(bags);
 //
 //    user.save();
 
 
-        User u=User.get(User.class,this,"id",1).get(0);
-//
-//        Log.e("ORM",u.id+"");
-//        Log.e("ORM",u.name+"");
-//        Log.e("ORM",u.password+"");
-//        Log.e("ORM",u.address+"");
+        User u=User.get(User.class,this,"id",2).get(0);
 
-        Bag b=u.bag;
+        Log.e("ORM",u.id+"");
+        Log.e("ORM",u.name+"");
+        Log.e("ORM",u.password+"");
+        Log.e("ORM",u.address+"");
+
+        Bag b=u.bags.get(1);
 
         Log.e("ORM",b.id+"");
         Log.e("ORM",b.color+"");
 
+//        Bag bag= Bag.get(Bag.class,this,"Userid",2).get(0);
+//
+//        Log.e("ORM",bag.color);
 
     }
 }
