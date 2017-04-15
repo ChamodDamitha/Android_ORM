@@ -82,8 +82,6 @@ public class DB_Helper extends SQLiteOpenHelper {
         }
 
         query+=");";
-///////////////////////////////////////////
-        Log.e("ORM",query);
 
         db.execSQL(query);
         db.close();
@@ -106,6 +104,8 @@ public class DB_Helper extends SQLiteOpenHelper {
         db.close();
     }
 
+
+//    ..........................Read records........................................................
     private Object getInstanceOf(Class<?> clas){
         try {
             Class<?> c = Class.forName(clas.getName());
@@ -117,127 +117,45 @@ public class DB_Helper extends SQLiteOpenHelper {
         }
     }
 
+    private Object getReturnObject(Class<?> clas,DBTable dbTable,Cursor cursor){
+        Object object = getInstanceOf(clas);
+//        set attributes
+        for (Attribute attribute : dbTable.getAttributes()
+                ) {
+            try {
+                Field f = clas.getField(attribute.getName());
+                setObjectFieldValue(object,f,cursor);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
 
-    public Object readFirstRecord(Class<?> clas, DBTable dbTable){
-            SQLiteDatabase db = getReadableDatabase();
-
-            String query = "SELECT * FROM " + dbTable.getName() + " LIMIT 1;";
-            Cursor cursor = db.rawQuery(query, null);
-
-            while (cursor.moveToNext()) {
-
-                    Object object = getInstanceOf(clas);
-//                  set attributes
-                    for (Attribute attribute : dbTable.getAttributes()
-                            ) {
-                            try {
-                                Field f = clas.getField(attribute.getName());
-                                setObjectFieldValue(object,f,cursor);
-                            } catch (NoSuchFieldException e) {
-                                e.printStackTrace();
-                            }
-
-                    }
+        }
 
 //                set foreign key refered objects
-                    for (ForeignKey foreignKey:dbTable.getForeignKeys()){
-                        Object sub_object=null;
+        for (ForeignKey foreignKey:dbTable.getForeignKeys()){
+            Object sub_object=null;
 
-                        if (foreignKey.getRef_Data_Class().equals(String.class)) {
-                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-                                    foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
-                        } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
-                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-                                    foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
-                        }
+            if (foreignKey.getRef_Data_Class().equals(String.class)) {
+                sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
+                        foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
+            } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
+                sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
+                        foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
+            }
 
-                        try {
-                            Field f = clas.getField(foreignKey.getRef_name());
-                            f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
-                        } catch (NoSuchFieldException|IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return object;
+            try {
+                Field f = clas.getField(foreignKey.getRef_name());
+                f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
+            } catch (NoSuchFieldException|IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
-        return null;
+        return object;
     }
 
     private <T>ArrayList<T> getObjectList(Class<T> clas, ArrayList object){
         return object;
     }
-
-
-
-    public <T>ArrayList<T> readAllRecords(Class<T> clas, DBTable dbTable){
-        ArrayList<T> objects=new ArrayList<>();
-
-        try {
-            Class<?> c = Class.forName(clas.getName());
-            Constructor<?> cons = c.getConstructor(Context.class);
-
-            SQLiteDatabase db = getReadableDatabase();
-
-            String query = "SELECT * FROM " + dbTable.getName() + ";";
-            Cursor cursor = db.rawQuery(query, null);
-
-            while (cursor.moveToNext()) {
-                try {
-                    Object object = cons.newInstance(context);
-
-                    for (Attribute attribute : dbTable.getAttributes()
-                            ) {
-                        try {
-                            Field f=clas.getField(attribute.getName());
-                            setObjectFieldValue(object,f,cursor);
-                        } catch (NoSuchFieldException e) {
-                            e.printStackTrace();
-                        }
-                    }
-//                    set foreign key refered objects
-                    for (ForeignKey foreignKey:dbTable.getForeignKeys()){
-                        Object sub_object=null;
-                        if (foreignKey.getRef_Data_Class().equals(String.class)) {
-                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-                                    foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
-                        } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
-                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-                                    foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
-                        }
-
-                        try {
-                            Field f = clas.getField(foreignKey.getRef_name());
-                            f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
-                        } catch (NoSuchFieldException|IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
-                    objects.add((T) object);
-                }
-                catch (InstantiationException e) {
-                    e.printStackTrace();
-                }
-                catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            db.close();
-        }
-        catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        return objects;
-    }
-
 
     private void setObjectFieldValue(Object object,Field f,Cursor cursor){
         try {
@@ -253,81 +171,62 @@ public class DB_Helper extends SQLiteOpenHelper {
     }
 
 
+    public Object readFirstRecord(Class<?> clas, DBTable dbTable){
+        SQLiteDatabase db = getReadableDatabase();
+
+        String query = "SELECT * FROM " + dbTable.getName() + " LIMIT 1;";
+        Cursor cursor = db.rawQuery(query, null);
+
+        while (cursor.moveToNext()) {
+            Object object = getReturnObject(clas,dbTable,cursor);
+            return object;
+        }
+        return null;
+    }
+
+
+    public <T>ArrayList<T> readAllRecords(Class<T> clas, DBTable dbTable){
+        ArrayList<T> objects=new ArrayList<>();
+
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM " + dbTable.getName() + ";";
+        Cursor cursor = db.rawQuery(query, null);
+
+        while (cursor.moveToNext()) {
+            Object object = getReturnObject(clas,dbTable,cursor);
+            objects.add((T) object);
+            db.close();
+        }
+        return objects;
+    }
 
     public <T>ArrayList<T> readRecords(Class<T> clas, DBTable dbTable,String key,Object value){
         ArrayList<T> objects=new ArrayList<>();
 
-        try {
-            Class<?> c = Class.forName(clas.getName());
-            Constructor<?> cons = c.getConstructor(Context.class);
+        SQLiteDatabase db = getReadableDatabase();
 
-            SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM " + dbTable.getName()+" WHERE ";
 
-            String query = "SELECT * FROM " + dbTable.getName()+" WHERE ";
+        if(value.getClass().equals(String.class)){
+            query+=key+"='"+value+"' ;";
+        }
+        else{
+            query+=key+"="+value+" ;";
+        }
 
-            if(value.getClass().equals(String.class)){
-                query+=key+"='"+value+"' ;";
-            }
-            else{
-                query+=key+"="+value+" ;";
-            }
+        Cursor cursor = db.rawQuery(query, null);
 
-            Cursor cursor = db.rawQuery(query, null);
-
-            while (cursor.moveToNext()) {
-                try {
-                    Object object = cons.newInstance(context);
-
-                    for (Attribute attribute : dbTable.getAttributes()) {
-                        try {
-                            Field f=clas.getField(attribute.getName());
-                            setObjectFieldValue(object,f,cursor);
-                        } catch (NoSuchFieldException e) {
-                            e.printStackTrace();
-                        }
-                    }
-//                    set foreign key refered objects
-                    for (ForeignKey foreignKey:dbTable.getForeignKeys()){
-                        Object sub_object=null;
-                        if (foreignKey.getRef_Data_Class().equals(String.class)) {
-                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-                                    foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
-                        } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
-                            sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-                                    foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
-                        }
-
-                        try {
-                            Field f = clas.getField(foreignKey.getRef_name());
-                            f.set(object, getObjectList(foreignKey.getRef_class(),(ArrayList) sub_object).get(0));
-                        } catch (NoSuchFieldException|IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    objects.add((T) object);
-                }
-                catch (InstantiationException e) {
-                    e.printStackTrace();
-                }
-                catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-
+        while (cursor.moveToNext()) {
+            Object object = getReturnObject(clas,dbTable,cursor);
+            objects.add((T) object);
             db.close();
-        }
-        catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (NoSuchMethodException e) {
-            e.printStackTrace();
         }
         return objects;
     }
+
+
+
+//    ............................update a record...................................................
 
     public void updateRecord(String tableName,ContentValues cv,String key,Object value){
         SQLiteDatabase db=getWritableDatabase();
@@ -343,6 +242,7 @@ public class DB_Helper extends SQLiteOpenHelper {
         db.close();
     }
 
+//................................delete a record...................................................
 
     public void deleteRecords(String tableName, String key, Object value){
         SQLiteDatabase db=getWritableDatabase();
