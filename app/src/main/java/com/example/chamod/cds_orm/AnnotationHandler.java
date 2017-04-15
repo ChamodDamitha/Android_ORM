@@ -27,7 +27,7 @@ public class AnnotationHandler {
             for (Field f:fields){
 //              if a DBModel
                 if(f.getAnnotation(DBAnnotation.DBModel.class)!=null){
-                    dbTable.addForeignKey(new ForeignKey(f.getType(),getColumnName(f)));
+                    dbTable.addForeignKey(new ForeignKey(clas,f.getType(),getColumnName(f)));
                 }
 //              a db column
                 if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){

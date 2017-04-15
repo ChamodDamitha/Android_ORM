@@ -8,9 +8,11 @@ import com.example.chamod.cds_orm.AnnotationHandler;
 
 public class ForeignKey{
     private Class<?> ref_class;
+    private Class<?> included_class;
     private String ref_name;
 
-    public ForeignKey(Class<?> ref_class,String ref_name) {
+    public ForeignKey(Class<?> include_class, Class<?> ref_class,String ref_name) {
+        this.included_class=include_class;
         this.ref_class=ref_class;
         this.ref_name=ref_name;
     }
@@ -32,8 +34,8 @@ public class ForeignKey{
     }
 
     public String getField_name() {
-        DBTable dbTable=AnnotationHandler.createTable(ref_class);
-        return dbTable.getPrimaryAttribute().getName();
+        DBTable dbTable=AnnotationHandler.createTable(included_class);
+        return included_class.getSimpleName()+dbTable.getPrimaryAttribute().getName();
     }
 
     public String getRef_name(){
@@ -42,5 +44,9 @@ public class ForeignKey{
 
     public Class<?> getRef_class() {
         return ref_class;
+    }
+
+    public Class<?> getIncluded_class() {
+        return included_class;
     }
 }

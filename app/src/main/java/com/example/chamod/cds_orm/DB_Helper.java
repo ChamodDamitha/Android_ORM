@@ -149,13 +149,24 @@ public class DB_Helper extends SQLiteOpenHelper {
         for (ForeignKey foreignKey:dbTable.getForeignKeys()){
             Object sub_object=null;
 
-            if (foreignKey.getRef_Data_Class().equals(String.class)) {
-                sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-                        foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
-            } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
-                sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-                        foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
-            }
+//            if (foreignKey.getRef_Data_Class().equals(String.class)) {
+//                sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
+//                        foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getName())));
+//            } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
+//                sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
+//                        foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getName())));
+//            }
+//
+              Field prim_field=AndroidModel.getPrimaryField(clas);
+
+              if(prim_field.getType().equals(String.class)){
+                  sub_object=AndroidModel.get(foreignKey.getRef_class(),context,
+                          foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(prim_field.getName())));
+              }
+              else if(prim_field.getType().equals(Integer.class) || prim_field.getType().equals(int.class)){
+                  sub_object=AndroidModel.get(foreignKey.getRef_class(),context,
+                          foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(prim_field.getName())));
+              }
 
             try {
                 Field f = clas.getField(foreignKey.getRef_name());
