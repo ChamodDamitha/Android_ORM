@@ -77,15 +77,28 @@ public class DB_Helper extends SQLiteOpenHelper {
             i++;
         }
 
-        for(ForeignKey foreignKey:dbTable.getForeignKeys()){
-            query+=","+foreignKey.getName()+" "+foreignKey.getType();
-        }
+//        for(ForeignKey foreignKey:dbTable.getForeignKeys()){
+//            query+=","+foreignKey.getName()+" "+foreignKey.getType();
+//        }
 
         query+=");";
+
+        ///////////////////////////////////
+        Log.e("ORM",query);
 
         db.execSQL(query);
         db.close();
     }
+
+    public void addTableColumn(DBTable dbTable,String column_name,String datatype){
+        SQLiteDatabase db=getWritableDatabase();
+        String query = "ALTER TABLE "+dbTable.getName()+" ADD COLUMN "+column_name+" "+datatype+";";
+        db.execSQL(query);
+        ////////////////////////////////
+        Log.e("ORM",query);
+        db.close();
+    }
+
 
     public int getMaxId(String tableName,String column_name){
         SQLiteDatabase db=getReadableDatabase();
@@ -97,6 +110,7 @@ public class DB_Helper extends SQLiteOpenHelper {
         return -1;
     }
 
+//    ........................Insert a record.......................................................
 
     public void insertRecord(String tableName,ContentValues contentValues){
         SQLiteDatabase db=getWritableDatabase();
@@ -170,7 +184,6 @@ public class DB_Helper extends SQLiteOpenHelper {
         }
     }
 
-
     public Object readFirstRecord(Class<?> clas, DBTable dbTable){
         SQLiteDatabase db = getReadableDatabase();
 
@@ -183,7 +196,6 @@ public class DB_Helper extends SQLiteOpenHelper {
         }
         return null;
     }
-
 
     public <T>ArrayList<T> readAllRecords(Class<T> clas, DBTable dbTable){
         ArrayList<T> objects=new ArrayList<>();

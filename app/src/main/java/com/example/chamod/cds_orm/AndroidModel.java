@@ -38,7 +38,7 @@ public class AndroidModel {
         DB_Helper db_helper=DB_Helper.getInstance(context);
 
 
-        Field primary_field=null;
+        Field primary_field=null,android_model_field=null;
 //      getAll all annotated fields
         Field[] fields=this.getClass().getFields();
 
@@ -48,19 +48,10 @@ public class AndroidModel {
 
 //            if a model object is associated
             if(AnnotationHandler.isDBModel(f)){
-                try {
-                    AndroidModel androidModel=(AndroidModel) f.get(this);
-                    androidModel.save();
-                    Field a_field=AndroidModel.getPrimaryField(androidModel.getClass());
-
-                    cv.put(androidModel.getClass().getSimpleName()+a_field.getName(),a_field.get(androidModel).toString());
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+                android_model_field=f;
             }
-
 //           a db column
-            if(AnnotationHandler.isAttribute(f)){
+            else if(AnnotationHandler.isAttribute(f)){
                 try {
                     if(AnnotationHandler.isPrimary(f)){
                         primary_field=f;
@@ -82,6 +73,19 @@ public class AndroidModel {
                 int id=db_helper.getMaxId(AnnotationHandler.createTable(this.getClass()).getName(),primary_field.getName());
                 if(id!=-1) {
                     primary_field.set(this,id);
+
+                    if(android_model_field!=null){
+                        try {
+                            AndroidModel androidModel=(AndroidModel) android_model_field.get(this);
+                            androidModel.saveWithExtraValue(this.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(this.getClass()).getName(),id);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+
                 }
             }
             catch (IllegalAccessException  e){
@@ -96,7 +100,93 @@ public class AndroidModel {
             catch (SQLiteException e){
                 e.printStackTrace();
 //                if(e.getMessage().split(":")[0].equals("no such table")) {
-                db_helper.createTable(AnnotationHandler.createTable(getClass()));
+                    db_helper.createTable(AnnotationHandler.createTable(getClass()));
+//                }
+                continue;
+            }
+            break;
+        }
+    }
+
+    private void saveWithExtraValue(String key, Object value) {
+
+        DB_Helper db_helper=DB_Helper.getInstance(context);
+
+
+        Field primary_field=null,android_model_field=null;
+//      getAll all annotated fields
+        Field[] fields=this.getClass().getFields();
+
+        ContentValues cv=new ContentValues();
+
+        for (Field f:fields){
+
+//            if a model object is associated
+            if(AnnotationHandler.isDBModel(f)){
+                android_model_field=f;
+            }
+
+//           a db column
+            else if(AnnotationHandler.isAttribute(f)){
+                try {
+                    if(AnnotationHandler.isPrimary(f)){
+                        primary_field=f;
+                        if(f.getType().equals(int.class) || f.getType().equals(Integer.class)){
+                            continue;
+                        }
+                    }
+
+                    cv.put(AnnotationHandler.getColumnName(f),(f.get(this)).toString());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+//      set extra value
+        cv.put(key,value.toString());
+
+        while(true) {
+            try {
+                db_helper.insertRecord(AnnotationHandler.getTableName(getClass()), cv);
+//           if primary key is auto incremented
+                int id=db_helper.getMaxId(AnnotationHandler.createTable(this.getClass()).getName(),primary_field.getName());
+                if(id!=-1) {
+                    primary_field.set(this,id);
+
+                    if(android_model_field!=null){
+                        try {
+                            AndroidModel androidModel=(AndroidModel) android_model_field.get(this);
+                            androidModel.saveWithExtraValue(this.getClass().getSimpleName()+
+                                    AndroidModel.getPrimaryField(this.getClass()).getName(),id);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+            }
+            catch (IllegalAccessException  e){
+
+            }
+            catch (NullPointerException e){
+
+            }
+            catch (SQLiteConstraintException e){
+                Log.e("ORM","Duplicate entry for same primary key");
+            }
+            catch (SQLiteException e){
+                e.printStackTrace();
+                if(e.getMessage().split(":")[0].equals("no such table")) {
+                    db_helper.createTable(AnnotationHandler.createTable(getClass()));
+                }
+                else{
+                    if(value.getClass().equals(String.class)) {
+                        db_helper.addTableColumn(AnnotationHandler.createTable(getClass()), key,"TEXT");
+                    }
+                    else if(value.getClass().equals(Integer.class) || value.getClass().equals(int.class)) {
+                        db_helper.addTableColumn(AnnotationHandler.createTable(getClass()), key,"INTEGER");
+                    }
+                }
                 continue;
             }
             break;
@@ -104,7 +194,7 @@ public class AndroidModel {
     }
 
 
-//    .................updating record.............................................................
+    //    .................updating record.............................................................
     public void update(){
         String key=null;
         Object value=null;

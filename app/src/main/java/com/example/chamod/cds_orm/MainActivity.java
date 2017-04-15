@@ -34,24 +34,24 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 //
-//    User user=new User(this,"Damitha","123","Matara");
+    User user=new User(this,"Damitha","123","Matara");
+
+    user.setBag(new Bag(this,"RED"));
+
+    user.save();
+
+
+//        User u=User.get(User.class,this,"id",1).get(0);
+////
+////        Log.e("ORM",u.id+"");
+////        Log.e("ORM",u.name+"");
+////        Log.e("ORM",u.password+"");
+////        Log.e("ORM",u.address+"");
 //
-//    user.setBag(new Bag(this,"RED"));
+//        Bag b=u.bag;
 //
-//    user.save();
-
-
-        User u=User.get(User.class,this,"id",1).get(0);
-//
-//        Log.e("ORM",u.id+"");
-//        Log.e("ORM",u.name+"");
-//        Log.e("ORM",u.password+"");
-//        Log.e("ORM",u.address+"");
-
-        Bag b=u.bag;
-
-        Log.e("ORM",b.id+"");
-        Log.e("ORM",b.color+"");
+//        Log.e("ORM",b.id+"");
+//        Log.e("ORM",b.color+"");
 
 
     }
