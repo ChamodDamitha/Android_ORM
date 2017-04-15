@@ -13,7 +13,6 @@ import java.util.ArrayList;
  */
 
 
-@DBAnnotation.TableName(table_name = "Users")
 public class User extends AndroidModel {
 
     @DBAnnotation.DBColumn
@@ -29,6 +28,8 @@ public class User extends AndroidModel {
     @DBAnnotation.DBColumn
     public String address;
 
+    @DBAnnotation.DBModel
+    public Book book;
 
     @DBAnnotation.DBModelList(model_class = Bag.class)
     public ArrayList<Bag> bags;
@@ -45,10 +46,9 @@ public class User extends AndroidModel {
         this.address=address;
     }
 
-//    public void setBag(Bag bag){
-//        this.bag=bag;
-//    }
-
+    public void setBook(Book book) {
+        this.book = book;
+    }
 
     public void setBags(ArrayList<Bag> bags) {
         this.bags = bags;

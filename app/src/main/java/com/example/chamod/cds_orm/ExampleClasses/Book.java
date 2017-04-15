@@ -6,26 +6,26 @@ import com.example.chamod.cds_orm.AndroidModel;
 import com.example.chamod.cds_orm.DBAnnotation;
 
 /**
- * Created by chamod on 4/10/17.
+ * Created by chamod on 4/15/17.
  */
 
-public class Bag extends AndroidModel {
-
+public class Book extends AndroidModel{
     @DBAnnotation.PrimaryKey
     @DBAnnotation.DBColumn
     public int id;
 
     @DBAnnotation.DBColumn
-    public String color;
+    public String name;
 
-    public Bag(Context context){
+    @DBAnnotation.DBModel
+    public Author author;
+
+    public Book(Context context){
         super(context);
     }
-
-    public Bag(Context context,String color) {
+    public Book(Context context,String name,Author author){
         super(context);
-        this.color=color;
+        this.name=name;
+        this.author=author;
     }
-
-
 }

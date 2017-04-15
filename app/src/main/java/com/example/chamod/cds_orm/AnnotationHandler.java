@@ -20,10 +20,10 @@ public class AnnotationHandler {
 
 //      getAll all annotated fields
         Field[] fields=clas.getFields();
-        DBAnnotation.TableName tableName =clas.getAnnotation(DBAnnotation.TableName.class);
+        String tableName =getTableName(clas);
         if(tableName!=null) {
 //            create a table
-            dbTable=new DBTable(tableName.table_name());
+            dbTable=new DBTable(tableName);
 
             for (Field f:fields){
 //              if a DBModel
@@ -49,12 +49,12 @@ public class AnnotationHandler {
         }
     }
 
-    public  static String getTableName(Class<?> clas){
-        String table_name=clas.getAnnotation(DBAnnotation.TableName.class).table_name();
+    public static String getTableName(Class<?> clas){
+        DBAnnotation.TableName table_name=clas.getAnnotation(DBAnnotation.TableName.class);
         if(table_name!=null){
-            return table_name;
+            return table_name.table_name();
         }
-        return clas.getName();
+        return clas.getSimpleName();
     }
 
     public static boolean isAttribute(Field f){

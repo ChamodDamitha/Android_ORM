@@ -122,8 +122,6 @@ public class DB_Helper extends SQLiteOpenHelper {
 
     public void saveModel(AndroidModel model){
 
-        DB_Helper db_helper=DB_Helper.getInstance(context);
-
 
         Field primary_field=null,android_model_field=null,android_modellist_field=null;
 //      getAll all annotated fields
@@ -159,10 +157,11 @@ public class DB_Helper extends SQLiteOpenHelper {
         }
         while(true) {
             try {
-                db_helper.insertRecord(AnnotationHandler.getTableName(model.getClass()), cv);
+                insertRecord(AnnotationHandler.getTableName(model.getClass()), cv);
 
 //           if primary key is auto incremented
-                int id=db_helper.getMaxId(AnnotationHandler.createTable(model.getClass()).getName(),primary_field.getName());
+                int id=getMaxId(AnnotationHandler.createTable(model.getClass()).getName(),primary_field.getName());
+
 
                 if(id!=-1) {
                     primary_field.set(model,id);
@@ -253,11 +252,20 @@ public class DB_Helper extends SQLiteOpenHelper {
         while(true) {
             try {
                 db_helper.insertRecord(AnnotationHandler.getTableName(model.getClass()), cv);
-//           if primary key is auto incremented
-                int id=db_helper.getMaxId(AnnotationHandler.createTable(model.getClass()).getName(),primary_field.getName());
-                if(id!=-1) {
-                    primary_field.set(model,id);
 
+                Object id;
+                if(primary_field.getType().equals(Integer.class) || primary_field.getType().equals(int.class)){
+                    id=db_helper.getMaxId(AnnotationHandler.createTable(model.getClass()).getName(),primary_field.getName());
+                }
+                else
+                {
+                    id=primary_field.get(model);
+                }
+
+//           if primary key is auto incremented
+
+//                if(id!=-1) {
+                    primary_field.set(model,id);
                     if(android_model_field!=null){
                         try {
                             AndroidModel androidModel=(AndroidModel) android_model_field.get(model);
@@ -276,7 +284,7 @@ public class DB_Helper extends SQLiteOpenHelper {
                     }
 
 
-                }
+//                }
             }
             catch (IllegalAccessException  e){
 
@@ -285,7 +293,7 @@ public class DB_Helper extends SQLiteOpenHelper {
 
             }
             catch (SQLiteConstraintException e){
-                Log.e("ORM","Duplicate entry for same primary key");
+                Log.e("ORM",model.getClass().getSimpleName()+" - Duplicate entry for same primary key");
             }
             catch (SQLiteException e){
                 e.printStackTrace();
@@ -366,7 +374,12 @@ public class DB_Helper extends SQLiteOpenHelper {
                     f.set(object, getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object));
                 }
                 else {
-                    f.set(object, getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object).get(0));
+                    if(getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object).size()==0){
+                        f.set(object,null);
+                    }
+                    else {
+                        f.set(object, getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object).get(0));
+                    }
                 }
             } catch (NoSuchFieldException|IllegalAccessException e) {
                 e.printStackTrace();
@@ -376,6 +389,9 @@ public class DB_Helper extends SQLiteOpenHelper {
     }
 
     private <T>ArrayList<T> getObjectList(Class<T> clas, ArrayList object){
+        if(object==null){
+            return new ArrayList<>();
+        }
         return object;
     }
 
