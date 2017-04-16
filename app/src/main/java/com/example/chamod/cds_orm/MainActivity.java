@@ -37,25 +37,30 @@ public class MainActivity extends AppCompatActivity {
 
 //      /////////////////////
 
+//        User.delete(User.class,this,"id",0);
 
-        User user=User.getFirst(User.class,this);
-//Log.e("ORM","size  "+users.size());
-////
-//        User user=users.get(0);
 
-        Log.e("ORM",user.id+"");
-        Log.e("ORM",user.name+"");
-        Log.e("ORM",user.address+"");
-        Log.e("ORM",user.password+"");
 
-        Log.e("ORM",user.bags.get(2).id+"");
-        Log.e("ORM",user.bags.get(2).color+"");
+//        User user=User.getFirst(User.class,this);
+////Log.e("ORM","size  "+users.size());
+//////
+////        User user=users.get(0);
+//
+//        Log.e("ORM",user.id+"");
+//        Log.e("ORM",user.name+"");
+//        Log.e("ORM",user.address+"");
+//        Log.e("ORM",user.password+"");
+//
+//        Log.e("ORM",user.bags.get(2).id+"");
+//        Log.e("ORM",user.bags.get(2).color+"");
+//
+//        Log.e("ORM",user.book.id+"");
+//        Log.e("ORM",user.book.name+"");
+//
+//        Log.e("ORM",user.book.author.author_id+"");
+//        Log.e("ORM",user.book.author.name+"");
 
-        Log.e("ORM",user.book.id+"");
-        Log.e("ORM",user.book.name+"");
-
-        Log.e("ORM",user.book.author.author_id+"");
-        Log.e("ORM",user.book.author.name+"");
+        Bag bag=Bag.get(Bag.class,this,"Userid",2).get(0);
 
 
     }

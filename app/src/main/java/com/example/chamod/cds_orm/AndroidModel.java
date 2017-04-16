@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import com.example.chamod.cds_orm.DBModels.DBTable;
+import com.example.chamod.cds_orm.DBModels.DetailModel;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -52,16 +53,11 @@ public class AndroidModel {
     }
 
 ////...................delete a model................................................................
-//    public static void delete(Class<?> clas, Context context,String key,Object value){
-//        DBTable dbTable=AnnotationHandler.createTable(clas);
-//        for(ForeignKey foreignKey:dbTable.getForeignKeys()){
-//            DB_Helper.getInstance(context).
-//                deleteRecords(AnnotationHandler.createTable(foreignKey.getRef_class()).getTable_name(),
-//                        foreignKey.getField_name(),value);
-//        }
-//
-//        DB_Helper.getInstance(context).
-//                deleteRecords(AnnotationHandler.createTable(clas).getTable_name(),key,value);
-//    }
+    public static void delete(Class<?> claz, Context context,String key,Object value){
+        DB_Helper.getInstance(context).deleteModels(claz,key,value);
+    }
 
+    public static void deleteAll(Class<?> claz, Context context){
+        DB_Helper.getInstance(context).deleteAllModels(claz);
+    }
 }

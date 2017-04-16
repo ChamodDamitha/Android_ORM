@@ -14,6 +14,7 @@ import com.example.chamod.cds_orm.DBModels.DBTable;
 import com.example.chamod.cds_orm.DBModels.DetailModel;
 import com.example.chamod.cds_orm.DBModels.ForeignModel;
 import com.example.chamod.cds_orm.DBModels.ForeignModelList;
+import com.example.chamod.cds_orm.ExampleClasses.Book;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -469,18 +470,120 @@ public class DB_Helper extends SQLiteOpenHelper {
 //    }
 //
 ////................................delete a record...................................................
-//
-//    public void deleteRecords(String tableName, String key, Object value){
-//        SQLiteDatabase db=getWritableDatabase();
-//
-//        String whereClause;
-//        if(value.getClass().equals(String.class)){
-//            whereClause=key+" = '"+value.toString()+"'";
-//        }
-//        else{
-//            whereClause=key+" = "+value.toString();
-//        }
-//        db.delete(tableName,whereClause,null);
-//        db.close();
-//    }
+
+    public void deleteModels(Class<?> claz, String key,Object value){
+        DetailModel detailModel=AnnotationHandler.getDetailModel(claz);
+
+        ArrayList<Object> ids=deleteRecords(detailModel.getDbTable(),key,value);
+
+        for(Object id:ids) {
+            for (ForeignModel foreignModel : detailModel.getForeignModels()) {
+                deleteModels(foreignModel.getField().getType(), foreignModel.getCol_name(), id);
+            }
+
+            for (ForeignModelList foreignModelList : detailModel.getForeignModelLists()) {
+                deleteModels(foreignModelList.getModel_claz(), foreignModelList.getCol_name(), id);
+            }
+        }
+
+    }
+
+    private ArrayList<Object> deleteRecords(DBTable dbTable, String key, Object value){
+        SQLiteDatabase db=getReadableDatabase();
+        String query;
+
+        ArrayList<Object> ids=new ArrayList<>();
+
+        Field prim_field=dbTable.getPrimary_attribute().getField();
+
+        if(value.getClass().equals(String.class)) {
+            query = "SELECT " + prim_field.getName()+" FROM " + dbTable.getTable_name()
+                    + " WHERE " +key + " = '"+value+"' ;";
+        }
+        else{
+            query = "SELECT " + prim_field.getName() +" FROM "+ dbTable.getTable_name()
+                    + " WHERE " +key + " = "+value+" ;";
+        }
+        Cursor cursor=db.rawQuery(query,null);
+        while(cursor.moveToNext()){
+            if(prim_field.getType().equals(int.class) || prim_field.getType().equals(Integer.class) ||
+                    prim_field.getType().equals(boolean.class) || prim_field.getType().equals(Boolean.class)){
+                ids.add(cursor.getInt(cursor.getColumnIndex(dbTable.getPrimary_attribute().getField().getName())));
+            }
+            else if(prim_field.getType().equals(double.class) || prim_field.getType().equals(Double.class)){
+                ids.add(cursor.getDouble(cursor.getColumnIndex(dbTable.getPrimary_attribute().getField().getName())));
+            }
+            else if(prim_field.getType().equals(float.class) || prim_field.getType().equals(Float.class)){
+                ids.add(cursor.getFloat(cursor.getColumnIndex(dbTable.getPrimary_attribute().getField().getName())));
+            }
+            else if(prim_field.getType().equals(String.class)){
+                ids.add(cursor.getString(cursor.getColumnIndex(dbTable.getPrimary_attribute().getField().getName())));
+            }
+        }
+
+        db=getWritableDatabase();
+
+        String whereClause;
+        if(value.getClass().equals(String.class)){
+            whereClause=key+" = '"+value.toString()+"'";
+        }
+        else{
+            whereClause=key+" = "+value.toString();
+        }
+        db.delete(dbTable.getTable_name(),whereClause,null);
+        db.close();
+
+        return ids;
+    }
+
+    public void deleteAllModels(Class<?> claz){
+        DetailModel detailModel=AnnotationHandler.getDetailModel(claz);
+
+        ArrayList<Object> ids=deleteAllRecords(detailModel.getDbTable());
+
+        for(Object id:ids) {
+            for (ForeignModel foreignModel : detailModel.getForeignModels()) {
+                deleteModels(foreignModel.getField().getType(), foreignModel.getCol_name(), id);
+            }
+
+            for (ForeignModelList foreignModelList : detailModel.getForeignModelLists()) {
+                deleteModels(foreignModelList.getModel_claz(), foreignModelList.getCol_name(), id);
+            }
+        }
+
+    }
+
+    private ArrayList<Object> deleteAllRecords(DBTable dbTable){
+        SQLiteDatabase db=getReadableDatabase();
+        String query;
+
+        Field prim_field=dbTable.getPrimary_attribute().getField();
+
+        ArrayList<Object> ids=new ArrayList<>();
+         query = "SELECT " + prim_field.getName()+" FROM " + dbTable.getTable_name()+ ";";
+
+        Cursor cursor=db.rawQuery(query,null);
+        while(cursor.moveToNext()){
+            if(prim_field.getType().equals(int.class) || prim_field.getType().equals(Integer.class) ||
+                    prim_field.getType().equals(boolean.class) || prim_field.getType().equals(Boolean.class)){
+                ids.add(cursor.getInt(cursor.getColumnIndex(dbTable.getPrimary_attribute().getField().getName())));
+            }
+            else if(prim_field.getType().equals(double.class) || prim_field.getType().equals(Double.class)){
+                ids.add(cursor.getDouble(cursor.getColumnIndex(dbTable.getPrimary_attribute().getField().getName())));
+            }
+            else if(prim_field.getType().equals(float.class) || prim_field.getType().equals(Float.class)){
+                ids.add(cursor.getFloat(cursor.getColumnIndex(dbTable.getPrimary_attribute().getField().getName())));
+            }
+            else if(prim_field.getType().equals(String.class)){
+                ids.add(cursor.getString(cursor.getColumnIndex(dbTable.getPrimary_attribute().getField().getName())));
+            }
+        }
+
+        db=getWritableDatabase();
+
+        db.delete(dbTable.getTable_name(),null,null);
+        db.close();
+
+        return ids;
+    }
 }
