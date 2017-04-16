@@ -12,6 +12,7 @@ import com.example.chamod.cds_orm.DBAnnotation;
 public class Book extends AndroidModel{
     @DBAnnotation.PrimaryKey
     @DBAnnotation.DBColumn
+    @DBAnnotation.AutoIncrement
     public int id;
 
     @DBAnnotation.DBColumn

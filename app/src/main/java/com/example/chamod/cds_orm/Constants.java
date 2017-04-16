@@ -6,4 +6,6 @@ package com.example.chamod.cds_orm;
 
 public class Constants {
     public static final String DBMODEL_ATTR="DBMODEL_ATTR";
+
+    public static final String DB_INTEGER_TYPE="INTEGER";
 }

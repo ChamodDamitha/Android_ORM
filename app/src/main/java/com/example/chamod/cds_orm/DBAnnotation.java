@@ -42,6 +42,12 @@ public class DBAnnotation {
     @Target(ElementType.FIELD)
     public @interface PrimaryKey{}
 
+//      to specify as a auto increment key
+  @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface AutoIncrement{}
+
+
 //  to specify a AndroidModel object reference which needs to be saved in the db as well
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)

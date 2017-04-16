@@ -13,6 +13,7 @@ public class Bag extends AndroidModel {
 
     @DBAnnotation.PrimaryKey
     @DBAnnotation.DBColumn
+    @DBAnnotation.AutoIncrement
     public int id;
 
     @DBAnnotation.DBColumn

@@ -20,46 +20,24 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-   User user=new User(this,"Test","24124235","Colombo");
+   User user=new User(this,"Test2","1234","Matara");
 
         ArrayList<Bag> bags=new ArrayList<>();
-        bags.add(new Bag(this,"RED"));
-        bags.add(new Bag(this,"BLUE"));
-        bags.add(new Bag(this,"GREEN"));
+        bags.add(new Bag(this,"R"));
+        bags.add(new Bag(this,"B"));
+        bags.add(new Bag(this,"G"));
 
     user.setBags(bags);
 
-        Author author=new Author(this,"auth2","K" +
-                "amal");
+        Author author=new Author(this,"auth2","Kamal");
         Book book=new Book(this,"Jungle book",author);
 
         user.setBook(book);
 
     user.save();
 
-//      /////////////////////
+      /////////////////////
 
-
-        User u=User.get(User.class,this,"id",user.id).get(0);
-
-        Log.e("ORM","user id - "+u.id);
-        Log.e("ORM","user name - "+u.name);
-        Log.e("ORM","user password - "+u.password);
-        Log.e("ORM","user address - "+u.address);
-
-
-        Log.e("ORM","bag2 id - "+u.bags.get(1).id);
-        Log.e("ORM","bag2 color - "+u.bags.get(1).color);
-
-        Book b=u.book;
-        Log.e("ORM","book id - "+b.id);
-        Log.e("ORM","book name - "+b.name);
-
-        Author a=b.author;
-        if(a!=null) {
-            Log.e("ORM", "Author id - " + a.author_id);
-            Log.e("ORM", "Author name - " + a.name);
-        }
 
 
 

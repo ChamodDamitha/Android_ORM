@@ -17,6 +17,7 @@ public class User extends AndroidModel {
 
     @DBAnnotation.DBColumn
     @DBAnnotation.PrimaryKey
+    @DBAnnotation.AutoIncrement
     public int id;
 
     @DBAnnotation.DBColumn

@@ -7,16 +7,17 @@ import java.util.ArrayList;
  */
 
 public class DBTable {
-    private String name;
+    private String table_name;
     private ArrayList<Attribute> attributes=new ArrayList<>();
-    private ArrayList<ForeignKey> foreignKeys=new ArrayList<>();
+    private Attribute primary_attribute;
 
-    public DBTable(String name) {
-        this.name = name;
+    public DBTable(String table_name) {
+        this.table_name = table_name;
+        this.attributes=new ArrayList<>();
     }
 
-    public String getName() {
-        return name;
+    public String getTable_name() {
+        return table_name;
     }
 
     public ArrayList<Attribute> getAttributes() {
@@ -27,20 +28,11 @@ public class DBTable {
         attributes.add(attribute);
     }
 
-    public void addForeignKey(ForeignKey foreignKey){
-        foreignKeys.add(foreignKey);
+    public Attribute getPrimary_attribute() {
+        return primary_attribute;
     }
 
-    public ArrayList<ForeignKey> getForeignKeys() {
-        return foreignKeys;
-    }
-
-    public Attribute getPrimaryAttribute(){
-        for (Attribute a:attributes){
-            if(a.isPrimary()){
-                return a;
-            }
-        }
-        return null;
+    public void setPrimary_attribute(Attribute primary_attribute) {
+        this.primary_attribute = primary_attribute;
     }
 }

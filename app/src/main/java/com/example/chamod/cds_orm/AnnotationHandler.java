@@ -4,10 +4,11 @@ import android.util.Log;
 
 import com.example.chamod.cds_orm.DBModels.Attribute;
 import com.example.chamod.cds_orm.DBModels.DBTable;
-import com.example.chamod.cds_orm.DBModels.ForeignKey;
+import com.example.chamod.cds_orm.DBModels.DetailModel;
+import com.example.chamod.cds_orm.DBModels.ForeignModel;
+import com.example.chamod.cds_orm.DBModels.ForeignModelList;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 
 /**
  * Created by chamod on 4/2/17.
@@ -15,39 +16,63 @@ import java.util.ArrayList;
 
 public class AnnotationHandler {
 
-    public static DBTable createTable(Class<?> clas){
-        DBTable dbTable;
+    public static DetailModel getDetailModel(Class<?> claz){
+        DetailModel detailModel=new DetailModel(claz);
 
-//      getAll all annotated fields
-        Field[] fields=clas.getFields();
-        String tableName =getTableName(clas);
-        if(tableName!=null) {
-//            create a table
-            dbTable=new DBTable(tableName);
+        DBTable dbTable=new DBTable(getTableName(claz));
 
-            for (Field f:fields){
-//              if a DBModel
-                if(f.getAnnotation(DBAnnotation.DBModel.class)!=null){
-                    dbTable.addForeignKey(new ForeignKey(clas,f.getType(),getColumnName(f)));
-                }
-//                if a DBModellist
-                if(f.getAnnotation(DBAnnotation.DBModelList.class)!=null){
-                    DBAnnotation.DBModelList dbModelListAnnot=f.getAnnotation(DBAnnotation.DBModelList.class);
-                    dbTable.addForeignKey(new ForeignKey(clas,dbModelListAnnot.model_class(),getColumnName(f)));
-                }
+        Field[] fields=claz.getFields();
+
+
+        for (Field f:fields){
+//            if a DBModel
+            if(f.getAnnotation(DBAnnotation.DBModel.class)!=null){
+                detailModel.addForeignModel(new ForeignModel(f,getForeignColName(claz)));
+            }
+//            if a DBModellist
+            if(f.getAnnotation(DBAnnotation.DBModelList.class)!=null){
+                DBAnnotation.DBModelList dbModelListAnnot=f.getAnnotation(DBAnnotation.DBModelList.class);
+
+                detailModel.addForeignModelList(new ForeignModelList(dbModelListAnnot.model_class(),
+                        f,getForeignColName(claz)));
+            }
 //              a db column
-                if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
-                    dbTable.addAttribute(new Attribute(getColumnName(f),getDataType(f),isPrimary(f),f.getType()));
+            if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
+                if(f.getAnnotation(DBAnnotation.PrimaryKey.class)!=null){
+                    if(isAutoIncrement(f)) {
+                        dbTable.setPrimary_attribute(new Attribute(f, getDataType(f),true));
+                    }
+                    else{
+                        dbTable.setPrimary_attribute(new Attribute(f, getDataType(f),false));
+                    }
+                }
+                else {
+                    dbTable.addAttribute(new Attribute(f, getDataType(f),false));
                 }
             }
+        }
 
-            return dbTable;
-        }
-        else{
-            Log.e("ORM","Please specify a table name using @TableName annotation");
-            return null;
-        }
+        detailModel.setDbTable(dbTable);
+        return detailModel;
+
     }
+
+
+    private static String getForeignColName(Class<?> claz){
+        return claz.getSimpleName()+getPrimaryField(claz).getName();
+    }
+
+    private static Field getPrimaryField(Class<?> claz){
+        Field[] fields=claz.getFields();
+        for(Field f:fields) {
+            if (isPrimary(f)) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+
 
     public static String getTableName(Class<?> clas){
         DBAnnotation.TableName table_name=clas.getAnnotation(DBAnnotation.TableName.class);
@@ -75,8 +100,39 @@ public class AnnotationHandler {
         if(f.getType().equals(String.class)){
             return "TEXT";
         }
-
+        if(f.getType().equals(Float.class) || f.getType().equals(float.class)){
+            return "FLOAT";
+        }
+        if(f.getType().equals(double.class) || f.getType().equals(Double.class)){
+            return "DOUBLE";
+        }
         return  null;
+    }
+
+    public static String getDBDataType(Object value){
+        if(value.getClass().equals(int.class) || value.getClass().equals(Integer.class)){
+            return "INTEGER";
+        }
+        if(value.getClass().equals(String.class)){
+            return "TEXT";
+        }
+        if(value.getClass().equals(Float.class) || value.getClass().equals(float.class)){
+            return "FLOAT";
+        }
+        if(value.getClass().equals(double.class) || value.getClass().equals(Double.class)){
+            return "DOUBLE";
+        }
+        return  null;
+    }
+
+    public static boolean isAutoIncrement(Field f){
+        if(f.getAnnotation(DBAnnotation.AutoIncrement.class)!=null){
+            if(getDataType(f).equals(Constants.DB_INTEGER_TYPE)){
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 
     public static String getColumnName(Field f){
