@@ -15,6 +15,12 @@ import java.util.ArrayList;
  */
 
 public class AndroidModel {
+    protected Object temp_id;
+
+    public Object getTemp_id() {
+        return temp_id;
+    }
+
     private static Context context;
 
     public AndroidModel(Context context){

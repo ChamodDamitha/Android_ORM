@@ -167,6 +167,13 @@ public class DB_Helper extends SQLiteOpenHelper {
                     id = detailModel.getDbTable().getPrimary_attribute().getField().get(model);
                 }
 
+                detailModel.getDbTable().getPrimary_attribute().getField().set(model,id);
+
+                Log.e("ORM","id-- "+id.toString());
+
+//                set temp_id
+                model.getClass().getField(Constants.TEMP_ID).set(model,id);
+
                 for (ForeignModel foreignModel : detailModel.getForeignModels()) {
                     AndroidModel submodel = (AndroidModel) foreignModel.getField().get(model);
                     saveModelWithExtraValue(submodel, foreignModel.getCol_name(), id,AnnotationHandler.getDBDataType(id));
@@ -181,6 +188,10 @@ public class DB_Helper extends SQLiteOpenHelper {
                 return false;
             } catch (SQLiteConstraintException e) {
                 Log.e("ORM", detailModel.getDbTable().getTable_name() + " - Duplicate entry for same primary key");
+                return false;
+            }
+            catch (NoSuchFieldException e){
+                e.printStackTrace();
                 return false;
             }
             return true;
@@ -235,6 +246,13 @@ public class DB_Helper extends SQLiteOpenHelper {
                     id = detailModel.getDbTable().getPrimary_attribute().getField().get(model);
                 }
 
+
+                detailModel.getDbTable().getPrimary_attribute().getField().set(model,id);
+
+//                set temp_id
+                model.getClass().getField(Constants.TEMP_ID).set(model,id);
+
+
                 for (ForeignModel foreignModel : detailModel.getForeignModels()) {
                     AndroidModel submodel = (AndroidModel) foreignModel.getField().get(model);
                     saveModelWithExtraValue(submodel, foreignModel.getCol_name(), id,key_db_data_type);
@@ -246,6 +264,10 @@ public class DB_Helper extends SQLiteOpenHelper {
                     }
                 }
             } catch (IllegalAccessException e) {
+                return false;
+            }
+            catch (NoSuchFieldException e){
+                e.printStackTrace();
                 return false;
             }
             return true;
@@ -399,8 +421,8 @@ public class DB_Helper extends SQLiteOpenHelper {
         }
         return objects;
     }
-//
-//
+
+
 //
 ////    ............................update a record...................................................
 //
@@ -495,8 +517,8 @@ public class DB_Helper extends SQLiteOpenHelper {
 //        db.update(tableName, cv, whereClause, null);
 //        db.close();
 //    }
-//
-////................................delete a record...................................................
+////
+//////................................delete a record...................................................
 
     public void deleteModels(Class<?> claz, String key,Object value){
         DetailModel detailModel=AnnotationHandler.getDetailModel(claz);
