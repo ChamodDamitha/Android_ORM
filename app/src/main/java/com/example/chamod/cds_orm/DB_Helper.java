@@ -451,22 +451,33 @@ public class DB_Helper extends SQLiteOpenHelper {
                     for(ForeignModel foreignModel:detailModel.getForeignModels()){
                         AndroidModel sub_model=(AndroidModel)foreignModel.getField().get(model);
 //                            delete existing sub models
-                        if(sub_model.getTemp_id()==null){
+                        if(sub_model!=null && sub_model.getTemp_id()==null){
                             deleteModels(sub_model.getClass(),foreignModel.getCol_name(),model.getTemp_id());
                         }
                         updateModelWithExtraValue(sub_model,foreignModel.getCol_name(),id);
                     }
 
                     for(ForeignModelList foreignModelList:detailModel.getForeignModelLists()){
+                        ArrayList<Object> sub_model_ids=new ArrayList<>();
+                        boolean newModelAdded=false;
+                        DetailModel detailModel1_sub_model=AnnotationHandler.getDetailModel(foreignModelList.
+                                getModel_claz());
+                        Field prim_field_sub_model=detailModel1_sub_model.getDbTable().getPrimary_attribute().getField();
+
                         ArrayList<AndroidModel> sub_models=(ArrayList<AndroidModel>)foreignModelList.getField().get(model);
+
                         for(AndroidModel sub_model:sub_models){
-//                            delete existing sub models
-                            if(sub_model.getTemp_id()==null){
-                                deleteModels(sub_model.getClass(),foreignModelList.getCol_name(),model.getTemp_id());
+                            if(sub_model!=null && sub_model.getTemp_id()==null){
+                                newModelAdded=true;
                             }
                             updateModelWithExtraValue(sub_model,foreignModelList.getCol_name(),id);
+                            sub_model_ids.add(prim_field_sub_model.get(sub_model));
+                        }
+                        if(newModelAdded) {
+                            deleteOtherModels(detailModel1_sub_model, sub_model_ids);
                         }
                     }
+
 
                     model.setTemp_id(id);
                     return true;
@@ -482,6 +493,7 @@ public class DB_Helper extends SQLiteOpenHelper {
             return false;
         }
     }
+
     public boolean updateModelWithExtraValue(AndroidModel model,String key,Object value){
         if(model!=null){
             if(model.getTemp_id()==null){
@@ -509,20 +521,29 @@ public class DB_Helper extends SQLiteOpenHelper {
                     for(ForeignModel foreignModel:detailModel.getForeignModels()){
                         AndroidModel sub_model=(AndroidModel)foreignModel.getField().get(model);
 //                      delete existing sub models
-                        if(sub_model.getTemp_id()==null){
+                        if(sub_model!=null && sub_model.getTemp_id()==null){
                             deleteModels(sub_model.getClass(),foreignModel.getCol_name(),model.getTemp_id());
                         }
                         updateModelWithExtraValue(sub_model,foreignModel.getCol_name(),id);
                     }
 
                     for(ForeignModelList foreignModelList:detailModel.getForeignModelLists()){
+                        ArrayList<Object> sub_model_ids=new ArrayList<>();
+                        boolean newModelAdded=false;
+                        DetailModel detailModel1_sub_model=AnnotationHandler.getDetailModel(foreignModelList.
+                                getModel_claz());
+                        Field prim_field_sub_model=detailModel1_sub_model.getDbTable().getPrimary_attribute().getField();
+
                         ArrayList<AndroidModel> sub_models=(ArrayList<AndroidModel>)foreignModelList.getField().get(model);
                         for(AndroidModel sub_model:sub_models){
-//                       delete existing sub models
-                            if(sub_model.getTemp_id()==null){
-                                deleteModels(sub_model.getClass(),foreignModelList.getCol_name(),model.getTemp_id());
+                           if(sub_model!=null && sub_model.getTemp_id()==null){
+                                newModelAdded=true;
                             }
                             updateModelWithExtraValue(sub_model,foreignModelList.getCol_name(),id);
+                            sub_model_ids.add(prim_field_sub_model.get(sub_model));
+                        }
+                        if(newModelAdded){
+                            deleteOtherModels(detailModel1_sub_model,sub_model_ids);
                         }
                     }
 
@@ -557,6 +578,41 @@ public class DB_Helper extends SQLiteOpenHelper {
 
         db.update(tableName, cv, whereClause, null);
         db.close();
+    }
+
+    private void deleteOtherModels(DetailModel detailModel,ArrayList<Object> sub_model_ids) {
+
+        Field primary_field=detailModel.getDbTable().getPrimary_attribute().getField();
+
+        SQLiteDatabase db=getReadableDatabase();
+
+        String query="SELECT "+primary_field.getName()+" FROM "+
+                detailModel.getDbTable().getTable_name()+";";
+
+
+        Cursor cursor=db.rawQuery(query,null);
+
+        Object id=null;
+
+        while (cursor.moveToNext()){
+
+            if(primary_field.getType().equals(String.class)){
+                id=(cursor.getString(cursor.getColumnIndex(primary_field.getName())));
+            }
+            else if(primary_field.getType().equals(Integer.class) || primary_field.getType().equals(int.class)){
+                id=(cursor.getInt(cursor.getColumnIndex(primary_field.getName())));
+            }
+            else if(primary_field.getType().equals(Float.class) || primary_field.getType().equals(float.class)){
+                id=(cursor.getFloat(cursor.getColumnIndex(primary_field.getName())));
+            }
+            else if(primary_field.getType().equals(Double.class) || primary_field.getType().equals(double.class)){
+                id=(cursor.getDouble(cursor.getColumnIndex(primary_field.getName())));
+            }
+            if(sub_model_ids.indexOf(id)==-1) {
+                deleteModels(detailModel.getClaz(), primary_field.getName(), id);
+            }
+        }
+
     }
 //
 //////................................delete a record...................................................
