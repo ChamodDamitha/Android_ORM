@@ -107,7 +107,7 @@ public class DB_Helper extends SQLiteOpenHelper {
 
 //    ........................Insert a record.......................................................
 
-    public void insertRecord(String tableName,ContentValues contentValues){
+    private void insertRecord(String tableName,ContentValues contentValues){
         SQLiteDatabase db=getWritableDatabase();
         db.insertOrThrow(tableName,null,contentValues);
         db.close();
@@ -120,8 +120,10 @@ public class DB_Helper extends SQLiteOpenHelper {
             ContentValues cv = new ContentValues();
             try {
 
-                cv.put(detailModel.getDbTable().getPrimary_attribute().getField().getName(),
-                    detailModel.getDbTable().getPrimary_attribute().getField().get(model).toString());
+                if(!detailModel.getDbTable().getPrimary_attribute().isAuto_increment()) {
+                    cv.put(detailModel.getDbTable().getPrimary_attribute().getField().getName(),
+                            detailModel.getDbTable().getPrimary_attribute().getField().get(model).toString());
+                }
 
                 for (Attribute a : detailModel.getDbTable().getAttributes()) {
                     cv.put(a.getField().getName(), (a.getField().get(model)).toString());
@@ -233,151 +235,142 @@ public class DB_Helper extends SQLiteOpenHelper {
 
 
     //    ..........................Read records........................................................
-//    private Object getInstanceOf(Class<?> clas){
-//        try {
-//            Class<?> c = Class.forName(clas.getName());
-//            Constructor<?> cons = c.getConstructor(Context.class);
-//            return cons.newInstance(context);
-//        } catch (NoSuchMethodException|ClassNotFoundException|IllegalAccessException
-//                |InstantiationException|InvocationTargetException e) {
-//            return null;
-//        }
-//    }
+    private Object getInstanceOf(Class<?> clas){
+        try {
+            Class<?> c = Class.forName(clas.getName());
+            Constructor<?> cons = c.getConstructor(Context.class);
+            return cons.newInstance(context);
+        } catch (NoSuchMethodException|ClassNotFoundException|IllegalAccessException
+                |InstantiationException|InvocationTargetException e) {
+            return null;
+        }
+    }
+
+    private Object getReturnObject(Class<?> claz,DetailModel detailModel,Cursor cursor){
+        Object object = getInstanceOf(claz);
+//        set attributes
+        setObjectFieldValue(object,detailModel.getDbTable().getPrimary_attribute().getField(),cursor);
+
+        for (Attribute attribute : detailModel.getDbTable().getAttributes()
+                ) {
+            setObjectFieldValue(object,attribute.getField(),cursor);
+        }
+//      set foreign key refered objects
+        try {
+            Object id=detailModel.getDbTable().getPrimary_attribute().getField().get(object);
+
+            for(ForeignModel foreignModel:detailModel.getForeignModels()){
+                Object sub_object=AndroidModel.get(foreignModel.getField().getType(),context,
+                        foreignModel.getCol_name(),id);
+
+                ArrayList objectList= getObjectList(foreignModel.getField().getType(),(ArrayList) sub_object);
+                if(objectList.size()==0){
+                    foreignModel.getField().set(object,null);
+                }
+                else {
+                    foreignModel.getField().set(object, objectList.get(0));
+                }
+            }
+            for (ForeignModelList foreignModelList:detailModel.getForeignModelLists()){
+                Object sub_object=AndroidModel.get(foreignModelList.getModel_claz(),context,
+                        foreignModelList.getCol_name(),id);
+                foreignModelList.getField().set(object,getObjectList(foreignModelList.getModel_claz(),
+                        (ArrayList)sub_object));
+            }
+
+        }
+        catch (Exception e) {
+            Log.e("ORM","getreturnobj error - "+e.toString());
+        }
+
+        return object;
+    }
+
+    private <T>ArrayList<T> getObjectList(Class<T> clas, ArrayList object){
+        if(object==null){
+            return new ArrayList<>();
+        }
+        return object;
+    }
+
+    private void setObjectFieldValue(Object object,Field f,Cursor cursor){
+        try {
+            if (f.getType().equals(String.class)) {
+                f.set(object, cursor.getString(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+            } else if (f.getType().equals(int.class) || f.getType().equals(Integer.class)) {
+                f.set(object, cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+            }else if (f.getType().equals(float.class) || f.getType().equals(Float.class)) {
+                f.set(object, cursor.getFloat(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+            }else if (f.getType().equals(double.class) || f.getType().equals(Double.class)) {
+                f.set(object, cursor.getDouble(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+            }else if (f.getType().equals(boolean.class) || f.getType().equals(Boolean.class)) {
+                f.set(object, cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+            }
+        }
+        catch (IllegalAccessException e){
+            Log.e("ORM","setObject field error - "+e.toString());
+        }
+    }
+
+    public Object readFirstRecord(Class<?> claz){
+        SQLiteDatabase db = getReadableDatabase();
+
+        DetailModel detailModel=AnnotationHandler.getDetailModel(claz);
+
+        String query = "SELECT * FROM " + detailModel.getDbTable().getTable_name() + " LIMIT 1;";
+        Cursor cursor = db.rawQuery(query, null);
+
+        while (cursor.moveToNext()) {
+            Object object = getReturnObject(claz,detailModel,cursor);
+            return object;
+        }
+        return null;
+    }
+
+    public <T>ArrayList<T> readAllRecords(Class<T> claz){
+        ArrayList<T> objects=new ArrayList<>();
+        DetailModel detailModel=AnnotationHandler.getDetailModel(claz);
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM " + detailModel.getDbTable().getTable_name() + ";";
+        Cursor cursor = db.rawQuery(query, null);
+
+        while (cursor.moveToNext()) {
+            Object object = getReturnObject(claz,detailModel,cursor);
+            objects.add((T) object);
+        }
+        db.close();
+        return objects;
+    }
 //
-//    private Object getReturnObject(Class<?> clas,DBTable dbTable,Cursor cursor){
-//        Object object = getInstanceOf(clas);
-////        set attributes
-//        for (Attribute attribute : dbTable.getAttributes()
-//                ) {
-//            try {
-//                Field f = clas.getField(attribute.getName());
-//                setObjectFieldValue(object,f,cursor);
-//            } catch (NoSuchFieldException e) {
-//                e.printStackTrace();
-//            }
-//
-//        }
-//
-////                set foreign key refered objects
-//        for (ForeignKey foreignKey:dbTable.getForeignKeys()){
-//            Object sub_object=null;
-//
-////            if (foreignKey.getRef_Data_Class().equals(String.class)) {
-////                sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-////                        foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(foreignKey.getTable_name())));
-////            } else if (foreignKey.getRef_Data_Class().equals(Integer.class) || foreignKey.getRef_Data_Class().equals(int.class)) {
-////                sub_object=readRecords(foreignKey.getRef_class(),AnnotationHandler.createTable(foreignKey.getRef_class()),
-////                        foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(foreignKey.getTable_name())));
-////            }
-////
-//              Field prim_field=AndroidModel.getPrimaryField(clas);
-//
-//
-//              if(prim_field.getType().equals(String.class)){
-//                  sub_object=AndroidModel.get(foreignKey.getRef_class(),context,
-//                          foreignKey.getField_name(),cursor.getString(cursor.getColumnIndex(prim_field.getName())));
-//              }
-//              else if(prim_field.getType().equals(Integer.class) || prim_field.getType().equals(int.class)){
-//                  sub_object=AndroidModel.get(foreignKey.getRef_class(),context,
-//                          foreignKey.getField_name(),cursor.getInt(cursor.getColumnIndex(prim_field.getName())));
-//              }
-//
-//            try {
-//
-//                Field f = clas.getField(foreignKey.getRef_name());
-//                if(f.getType().equals(ArrayList.class)){
-//                    f.set(object, getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object));
-//                }
-//                else {
-//                    if(getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object).size()==0){
-//                        f.set(object,null);
-//                    }
-//                    else {
-//                        f.set(object, getObjectList(foreignKey.getRef_class(), (ArrayList) sub_object).get(0));
-//                    }
-//                }
-//            } catch (NoSuchFieldException|IllegalAccessException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return object;
-//    }
-//
-//    private <T>ArrayList<T> getObjectList(Class<T> clas, ArrayList object){
-//        if(object==null){
-//            return new ArrayList<>();
-//        }
-//        return object;
-//    }
-//
-//    private void setObjectFieldValue(Object object,Field f,Cursor cursor){
-//        try {
-//            if (f.getType().equals(String.class)) {
-//                f.set(object, cursor.getString(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
-//            } else if (f.getType().equals(int.class) || f.getType().equals(Integer.class)) {
-//                f.set(object, cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
-//            }
-//        }
-//        catch (IllegalAccessException e){
-//
-//        }
-//    }
-//
-//    public Object readFirstRecord(Class<?> clas, DBTable dbTable){
-//        SQLiteDatabase db = getReadableDatabase();
-//
-//        String query = "SELECT * FROM " + dbTable.getTable_name() + " LIMIT 1;";
-//        Cursor cursor = db.rawQuery(query, null);
-//
-//        while (cursor.moveToNext()) {
-//            Object object = getReturnObject(clas,dbTable,cursor);
-//            return object;
-//        }
-//        return null;
-//    }
-//
-//    public <T>ArrayList<T> readAllRecords(Class<T> clas, DBTable dbTable){
-//        ArrayList<T> objects=new ArrayList<>();
-//
-//        SQLiteDatabase db = getReadableDatabase();
-//        String query = "SELECT * FROM " + dbTable.getTable_name() + ";";
-//        Cursor cursor = db.rawQuery(query, null);
-//
-//        while (cursor.moveToNext()) {
-//            Object object = getReturnObject(clas,dbTable,cursor);
-//            objects.add((T) object);
-//            db.close();
-//        }
-//        return objects;
-//    }
-//
-//    public <T>ArrayList<T> readRecords(Class<T> clas, DBTable dbTable,String key,Object value){
-//        ArrayList<T> objects=new ArrayList<>();
-//
-//        SQLiteDatabase db = getReadableDatabase();
-//
-//        String query = "SELECT * FROM " + dbTable.getTable_name()+" WHERE ";
-//
-//        if(value.getClass().equals(String.class)){
-//            query+=key+"='"+value+"' ;";
-//        }
-//        else{
-//            query+=key+"="+value+" ;";
-//        }
-//        try {
-//            Cursor cursor = db.rawQuery(query, null);
-//
-//            while (cursor.moveToNext()) {
-//                Object object = getReturnObject(clas,dbTable,cursor);
-//                objects.add((T) object);
-//                db.close();
-//            }
-//        }
-//        catch (SQLiteException e){
-//            return new ArrayList<>();
-//        }
-//        return objects;
-//    }
+    public <T>ArrayList<T> readRecords(Class<T> claz,String key,Object value){
+        DetailModel detailModel=AnnotationHandler.getDetailModel(claz);
+
+        ArrayList<T> objects=new ArrayList<>();
+
+        SQLiteDatabase db = getReadableDatabase();
+
+        String query = "SELECT * FROM " + detailModel.getDbTable().getTable_name()+" WHERE ";
+
+        if(value.getClass().equals(String.class)){
+            query+=key+"='"+value+"' ;";
+        }
+        else{
+            query+=key+"="+value+" ;";
+        }
+        try {
+            Cursor cursor = db.rawQuery(query, null);
+
+            while (cursor.moveToNext()) {
+                Object object = getReturnObject(claz,detailModel,cursor);
+                objects.add((T) object);
+                db.close();
+            }
+        }
+        catch (SQLiteException e){
+            return new ArrayList<>();
+        }
+        return objects;
+    }
 //
 //
 //

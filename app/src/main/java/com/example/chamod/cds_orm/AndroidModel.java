@@ -39,22 +39,18 @@ public class AndroidModel {
 //
 //
 ////..................retrieving data back from database.............................................
-//    public static <T>T getFirst(Class<T> clas,Context context){
-//        return (T)DB_Helper.getInstance(context).readFirstRecord(clas,
-//                AnnotationHandler.createTable(clas));
-//
-//    }
-//
-//    public static <T>ArrayList<T> getAll(Class<T> clas, Context context){
-//        return DB_Helper.getInstance(context).readAllRecords(clas,
-//                AnnotationHandler.createTable(clas));
-//
-//    }
-//    public static <T>ArrayList<T> get(Class<T> clas, Context context,String key,Object value){
-//        return DB_Helper.getInstance(context).readRecords(clas,
-//                AnnotationHandler.createTable(clas),key,value);
-//    }
-//
+    public static <T>T getFirst(Class<T> clas,Context context){
+        return (T)DB_Helper.getInstance(context).readFirstRecord(clas);
+
+    }
+    public static <T>ArrayList<T> getAll(Class<T> clas, Context context){
+        return DB_Helper.getInstance(context).readAllRecords(clas);
+
+    }
+    public static <T>ArrayList<T> get(Class<T> claz, Context context,String key,Object value){
+        return DB_Helper.getInstance(context).readRecords(claz,key,value);
+    }
+
 ////...................delete a model................................................................
 //    public static void delete(Class<?> clas, Context context,String key,Object value){
 //        DBTable dbTable=AnnotationHandler.createTable(clas);
