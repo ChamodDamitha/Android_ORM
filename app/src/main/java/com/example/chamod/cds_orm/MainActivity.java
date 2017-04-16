@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.chamod.cds_orm.ExampleClasses.Author;
+import com.example.chamod.cds_orm.ExampleClasses.Bag;
 import com.example.chamod.cds_orm.ExampleClasses.Book;
 import com.example.chamod.cds_orm.ExampleClasses.User;
 
@@ -18,14 +19,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 //.......................................insert.......................................................
-//        User u=new User(this,"Test567","111","galle");
-//
-//        ArrayList<Bag> bags=new ArrayList<>();
-//        bags.add(new Bag(this,"RR"));
-//        bags.add(new Bag(this,"BB"));
-//        bags.add(new Bag(this,"GGG"));
-//
-//        u.setBags(bags);
+        User uu=new User(this,"fuck","111","galle");
+
+        ArrayList<Bag> bags=new ArrayList<>();
+        bags.add(new Bag(this,"RR"));
+        bags.add(new Bag(this,"BB"));
+        bags.add(new Bag(this,"GGG"));
+
+        uu.setBags(bags);
 
 //        User user=User.get(User.class,this,"name","Test567").get(0);
 ////
@@ -33,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
 //        Book book=new Book(this,"dfd book",author);
 //
 //        user.setBook(book);
-////
-////        u.save();
+//
+        uu.update();
 //
 //        user.update();
 //      /////////////////////
@@ -43,18 +44,17 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//        User u =User.getFirst(User.class,this);
+        User u =User.get(User.class,this,"name","fuck").get(0);
 ////Log.e("ORM","size  "+users.size());
 //////
-////        User u=users.get(0);
-//
-//        Log.e("ORM", u.id+"");
-//        Log.e("ORM", u.name+"");
-//        Log.e("ORM", u.address+"");
-//        Log.e("ORM", u.password+"");
-//
-//        Log.e("ORM", u.bags.get(2).id+"");
-//        Log.e("ORM", u.bags.get(2).color+"");
+
+        Log.e("ORM", u.id+"");
+        Log.e("ORM", u.name+"");
+        Log.e("ORM", u.address+"");
+        Log.e("ORM", u.password+"");
+
+        Log.e("ORM", u.bags.get(2).id+"");
+        Log.e("ORM", u.bags.get(2).color+"");
 //
 //        Log.e("ORM", u.book.id+"");
 //        Log.e("ORM", u.book.name+"");
@@ -84,9 +84,9 @@ public class MainActivity extends AppCompatActivity {
 //        Log.e("ORM",c.getTemp_id()+"");
 
 
-        ArrayList<Book> books=Book.getAll(Book.class,this);
-
-        Log.e("ORM",books.size()+" size");
+//        ArrayList<Book> books=Book.getAll(Book.class,this);
+//
+//        Log.e("ORM",books.size()+" size");
 
 
 
