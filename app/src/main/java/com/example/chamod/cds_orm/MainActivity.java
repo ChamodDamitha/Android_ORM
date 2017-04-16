@@ -19,29 +19,29 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 //.......................................insert.......................................................
-//        User user=new User(this,"Test4","1234","Mmmmmma");
+//        User user=new User(this,"Test567","111","galle");
 //
 //        ArrayList<Bag> bags=new ArrayList<>();
-//        bags.add(new Bag(this,"R"));
-//        bags.add(new Bag(this,"B"));
-//        bags.add(new Bag(this,"G"));
+//        bags.add(new Bag(this,"RR"));
+//        bags.add(new Bag(this,"BB"));
+//        bags.add(new Bag(this,"GGG"));
 //
 //        user.setBags(bags);
 //
-////        Author author=new Author(this,"auth2","Kamal");
-////        Book book=new Book(this,"Jungle book",author);
-////
-////        user.setBook(book);
+//        Author author=new Author(this,"autttt","Kdfdamal");
+//        Book book=new Book(this,"fuckk book",author);
+//
+//        user.setBook(book);
 //
 //        user.save();
 
 //      /////////////////////
 
 
-        ArrayList<User> users=User.getAll(User.class,this);
-Log.e("ORM","size  "+users.size());
-
-        User user=users.get(1);
+        User user=User.getFirst(User.class,this);
+//Log.e("ORM","size  "+users.size());
+////
+//        User user=users.get(0);
 
         Log.e("ORM",user.id+"");
         Log.e("ORM",user.name+"");
@@ -51,11 +51,11 @@ Log.e("ORM","size  "+users.size());
         Log.e("ORM",user.bags.get(2).id+"");
         Log.e("ORM",user.bags.get(2).color+"");
 
-//        Log.e("ORM",user.book.id+"");
-//        Log.e("ORM",user.book.name+"");
-//
-//        Log.e("ORM",user.book.author.author_id+"");
-//        Log.e("ORM",user.book.author.name+"");
+        Log.e("ORM",user.book.id+"");
+        Log.e("ORM",user.book.name+"");
+
+        Log.e("ORM",user.book.author.author_id+"");
+        Log.e("ORM",user.book.author.name+"");
 
 
     }
