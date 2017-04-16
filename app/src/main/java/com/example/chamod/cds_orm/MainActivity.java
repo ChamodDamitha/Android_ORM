@@ -64,13 +64,24 @@ public class MainActivity extends AppCompatActivity {
 //        Bag bag=Bag.get(Bag.class,this,"Userid",2).get(0);
 
 
-        Car c=new Car(this,true);
-        c.save();
+//        Car c=new Car(this,true);
+//        c.save();
 
-//        Car car=Car.get(Car.class,this,"id",1).get(0);
+        Car c=Car.get(Car.class,this,"id",34).get(0);
         Log.e("ORM",c.id+"");
         Log.e("ORM",c.isDamaged+"");
         Log.e("ORM",c.getTemp_id()+"");
+
+        Log.e("ORM","-----------------------------------------------");
+
+//        c.id=34;
+        c.isDamaged=true;
+        c.update();
+//
+        Log.e("ORM",c.id+"");
+        Log.e("ORM",c.isDamaged+"");
+        Log.e("ORM",c.getTemp_id()+"");
+
 
     }
 }

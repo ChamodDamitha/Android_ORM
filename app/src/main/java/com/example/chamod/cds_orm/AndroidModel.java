@@ -21,6 +21,10 @@ public class AndroidModel {
         return temp_id;
     }
 
+    public void setTemp_id(Object temp_id) {
+        this.temp_id = temp_id;
+    }
+
     private static Context context;
 
     public AndroidModel(Context context){
@@ -32,19 +36,20 @@ public class AndroidModel {
     public void save(){
         DB_Helper.getInstance(context).saveModel(this);
     }
-//    //    .................updating record.............................................................
-//    public boolean update(){
-//        try {
-//            DB_Helper.getInstance(context).updateModel(this);
-//        }
-//        catch (SQLiteException e){
-//            Log.e("ORM","fuckkkk");
-//            return false;
-//        }
-//        return true;
-//    }
-//
-//
+
+    //    .................updating record.............................................................
+    public boolean update(){
+        try {
+            DB_Helper.getInstance(context).updateModel(this);
+        }
+        catch (SQLiteException e){
+            Log.e("ORM","fuckkkk --"+e.toString());
+            return false;
+        }
+        return true;
+    }
+
+
 ////..................retrieving data back from database.............................................
     public static <T>T getFirst(Class<T> clas,Context context){
         return (T)DB_Helper.getInstance(context).readFirstRecord(clas);

@@ -169,8 +169,6 @@ public class DB_Helper extends SQLiteOpenHelper {
 
                 detailModel.getDbTable().getPrimary_attribute().getField().set(model,id);
 
-                Log.e("ORM","id-- "+id.toString());
-
 //                set temp_id
                 model.getClass().getField(Constants.TEMP_ID).set(model,id);
 
@@ -303,6 +301,9 @@ public class DB_Helper extends SQLiteOpenHelper {
         try {
             Object id=detailModel.getDbTable().getPrimary_attribute().getField().get(object);
 
+//            set temp_id
+            claz.getField(Constants.TEMP_ID).set(object,id);
+
             for(ForeignModel foreignModel:detailModel.getForeignModels()){
                 Object sub_object=AndroidModel.get(foreignModel.getField().getType(),context,
                         foreignModel.getCol_name(),id);
@@ -426,98 +427,122 @@ public class DB_Helper extends SQLiteOpenHelper {
 //
 ////    ............................update a record...................................................
 //
-//    public void updateModel(AndroidModel model){
-//        String key=null;
-//        Object value=null;
-////      getAll all annotated fields
-//        Field[] fields=model.getClass().getFields();
-//
-//        ContentValues cv=new ContentValues();
-//
-//
-//        Field prim_field=AndroidModel.getPrimaryField(model.getClass());
-//
-//        for (Field f:fields){
-////            if a dbmodel
-//            if(AnnotationHandler.isDBModel(f)){
-//                try {
-//                    AndroidModel androidModel=(AndroidModel) f.get(model);
-//                    if (androidModel!=null){
-////                        cv.put(androidModel.getClass().getSimpleName()+prim_field.getTable_name(),
-////                                prim_field.get(androidModel).toString());
-//                        boolean updated=androidModel.update();
-//                        if(!updated){
-//                            saveModelWithExtraValue(androidModel,
-//                                    model.getClass().getSimpleName()+prim_field.getName(),prim_field.get(model));
-//                        }
-//                    }
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-////            if a dbmodel list
-//            if(AnnotationHandler.isDBModelList(f)){
-//                try {
-//                    ArrayList<AndroidModel> androidModels =(ArrayList<AndroidModel>)f.get(model);
-//                    for (AndroidModel androidModel:androidModels){
-//                        boolean updated=androidModel.update();
-//                        if(!updated){
-//                            saveModelWithExtraValue(androidModel,
-//                                    model.getClass().getSimpleName()+prim_field.getName(),prim_field.get(model));
-//                        }
-//                    }
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-////           a db column
-//            if(AnnotationHandler.isAttribute(f)){
-//                try {
-//                    cv.put(AnnotationHandler.getColumnName(f),(f.get(model)).toString());
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                if(AnnotationHandler.isPrimary(f)){
-//                    try {
-//                        key = f.getName();
-//                        value = f.get(model);
-//                    }
-//                    catch(IllegalAccessException e){
-//
-//                    }
-//                }
-//            }
-//        }
-//
-//
-////        while(true) {
-//            updateRecord(AnnotationHandler.getTableName(model.getClass()), cv, key, value);
-////            break;
-////        }
-//
-//    }
-//
-//
-//    private void updateRecord(String tableName,ContentValues cv,String key,Object value){
-//
-//        SQLiteDatabase db=getWritableDatabase();
-//
-//        String whereClause;
-//        if(value.getClass().equals(String.class)){
-//            whereClause=key+" = '"+value.toString()+"'";
-//        }
-//        else{
-//            whereClause=key+" = "+value.toString();
-//        }
-//
+    public boolean updateModel(AndroidModel model){
+        if(model!=null){
+            if(model.getTemp_id()==null){
+                saveModel(model);
+            }
+            else{
+                DetailModel detailModel=AnnotationHandler.getDetailModel(model.getClass());
+                ContentValues cv=new ContentValues();
+                try {
+                    cv.put(detailModel.getDbTable().getPrimary_attribute().getField().getName(),
+                            getValueString(detailModel.getDbTable().getPrimary_attribute().getField().get(model)));
+
+                    for (Attribute a : detailModel.getDbTable().getAttributes()){
+                        cv.put(a.getField().getName(),getValueString(a.getField().get(model)));
+                    }
+                    updateRecord(detailModel.getDbTable().getTable_name(),cv,
+                            detailModel.getDbTable().getPrimary_attribute().getField().getName(),
+                            model.getTemp_id());
+
+                    Object id=detailModel.getDbTable().getPrimary_attribute().getField().get(model);
+
+                    for(ForeignModel foreignModel:detailModel.getForeignModels()){
+                        AndroidModel sub_model=(AndroidModel)foreignModel.getField().get(model);
+                        updateModelWithExtraValue(sub_model,foreignModel.getCol_name(),id);
+                    }
+
+                    for(ForeignModelList foreignModelList:detailModel.getForeignModelLists()){
+                        ArrayList<AndroidModel> sub_models=(ArrayList<AndroidModel>)foreignModelList.getField().get(model);
+                        for(AndroidModel sub_model:sub_models){
+                            updateModelWithExtraValue(sub_model,foreignModelList.getCol_name(),id);
+                        }
+                    }
+
+                    model.setTemp_id(id);
+                    return true;
+                }
+                catch (IllegalAccessException e){
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    public boolean updateModelWithExtraValue(AndroidModel model,String key,Object value){
+        if(model!=null){
+            if(model.getTemp_id()==null){
+                saveModelWithExtraValue(model,key,value,AnnotationHandler.getDBDataType(value));
+            }
+            else{
+                DetailModel detailModel=AnnotationHandler.getDetailModel(model.getClass());
+                ContentValues cv=new ContentValues();
+                try {
+                    cv.put(detailModel.getDbTable().getPrimary_attribute().getField().getName(),
+                            getValueString(detailModel.getDbTable().getPrimary_attribute().getField().get(model)));
+
+                    for (Attribute a : detailModel.getDbTable().getAttributes()){
+                        cv.put(a.getField().getName(),getValueString(a.getField().get(model)));
+                    }
+
+                    cv.put(key,getValueString(value));
+
+                    updateRecord(detailModel.getDbTable().getTable_name(),cv,
+                            detailModel.getDbTable().getPrimary_attribute().getField().getName(),
+                            model.getTemp_id());
+
+                    Object id=detailModel.getDbTable().getPrimary_attribute().getField().get(model);
+
+                    for(ForeignModel foreignModel:detailModel.getForeignModels()){
+                        AndroidModel sub_model=(AndroidModel)foreignModel.getField().get(model);
+                        updateModelWithExtraValue(sub_model,foreignModel.getCol_name(),id);
+                    }
+
+                    for(ForeignModelList foreignModelList:detailModel.getForeignModelLists()){
+                        ArrayList<AndroidModel> sub_models=(ArrayList<AndroidModel>)foreignModelList.getField().get(model);
+                        for(AndroidModel sub_model:sub_models){
+                            updateModelWithExtraValue(sub_model,foreignModelList.getCol_name(),id);
+                        }
+                    }
+
+                    model.setTemp_id(id);
+                    return true;
+                }
+                catch (IllegalAccessException e){
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    private void updateRecord(String tableName,ContentValues cv,String key,Object value){
+
+        SQLiteDatabase db=getWritableDatabase();
+
+        String whereClause;
+        if(value.getClass().equals(String.class)){
+            whereClause=key+" = '"+value.toString()+"'";
+        }
+        else{
+            whereClause=key+" = "+value.toString();
+        }
+
 //        Log.e("ORM",tableName+" -- "+whereClause);
+
+        db.update(tableName, cv, whereClause, null);
+        db.close();
+    }
 //
-//        db.update(tableName, cv, whereClause, null);
-//        db.close();
-//    }
-////
 //////................................delete a record...................................................
 
     public void deleteModels(Class<?> claz, String key,Object value){
