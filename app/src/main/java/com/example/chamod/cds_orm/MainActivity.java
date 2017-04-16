@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.chamod.cds_orm.ExampleClasses.Author;
 import com.example.chamod.cds_orm.ExampleClasses.Bag;
 import com.example.chamod.cds_orm.ExampleClasses.Book;
+import com.example.chamod.cds_orm.ExampleClasses.Car;
 import com.example.chamod.cds_orm.ExampleClasses.User;
 
 import java.util.ArrayList;
@@ -60,8 +61,15 @@ public class MainActivity extends AppCompatActivity {
 //        Log.e("ORM",user.book.author.author_id+"");
 //        Log.e("ORM",user.book.author.name+"");
 
-        Bag bag=Bag.get(Bag.class,this,"Userid",2).get(0);
+//        Bag bag=Bag.get(Bag.class,this,"Userid",2).get(0);
 
+
+        Car c=new Car(this,false);
+        c.save();
+
+        Car car=Car.get(Car.class,this,"id",2).get(0);
+        Log.e("ORM",car.id+"");
+        Log.e("ORM",car.isDamaged+"");
 
     }
 }

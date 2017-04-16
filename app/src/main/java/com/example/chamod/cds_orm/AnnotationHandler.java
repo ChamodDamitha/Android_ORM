@@ -23,6 +23,7 @@ public class AnnotationHandler {
 
         Field[] fields=claz.getFields();
 
+        boolean primary_key_available=false,have_columns=false;
 
         for (Field f:fields){
 //            if a DBModel
@@ -38,7 +39,9 @@ public class AnnotationHandler {
             }
 //              a db column
             if(f.getAnnotation(DBAnnotation.DBColumn.class)!=null){
+                have_columns=true;
                 if(f.getAnnotation(DBAnnotation.PrimaryKey.class)!=null){
+                    primary_key_available=true;
                     if(isAutoIncrement(f)) {
                         dbTable.setPrimary_attribute(new Attribute(f, getDataType(f),true));
                     }
@@ -53,6 +56,15 @@ public class AnnotationHandler {
         }
 
         detailModel.setDbTable(dbTable);
+
+        if(!have_columns){
+            Log.e("ORM","Please specify DBColumn fields for class - "+claz.getSimpleName());
+            return null;
+        }
+        if(!primary_key_available){
+            Log.e("ORM","Please specify a primary key field for class - "+claz.getSimpleName());
+            return null;
+        }
         return detailModel;
 
     }
@@ -106,6 +118,9 @@ public class AnnotationHandler {
         if(f.getType().equals(double.class) || f.getType().equals(Double.class)){
             return "DOUBLE";
         }
+        if(f.getType().equals(boolean.class) || f.getType().equals(Boolean.class)){
+            return "INT";
+        }
         return  null;
     }
 
@@ -121,6 +136,9 @@ public class AnnotationHandler {
         }
         if(value.getClass().equals(double.class) || value.getClass().equals(Double.class)){
             return "DOUBLE";
+        }
+        if(value.getClass().equals(boolean.class) || value.getClass().equals(Boolean.class)){
+            return "INT";
         }
         return  null;
     }

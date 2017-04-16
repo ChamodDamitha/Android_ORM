@@ -114,20 +114,38 @@ public class DB_Helper extends SQLiteOpenHelper {
         db.close();
     }
 
+    private String getValueString(Object value){
+        if(value.getClass().equals(boolean.class) || value.getClass().equals(Boolean.class)){
+            boolean bool=(boolean)value;
+            if(bool){
+                return "1";
+            }
+            else {
+                return "0";
+            }
+        }
+        else {
+            return value.toString();
+        }
+    }
+
     public boolean saveModel(AndroidModel model){
         if(model!=null) {
             DetailModel detailModel = AnnotationHandler.getDetailModel(model.getClass());
+            if(detailModel==null){
+                return false;
+            }
 
             ContentValues cv = new ContentValues();
             try {
 
                 if(!detailModel.getDbTable().getPrimary_attribute().isAuto_increment()) {
                     cv.put(detailModel.getDbTable().getPrimary_attribute().getField().getName(),
-                            detailModel.getDbTable().getPrimary_attribute().getField().get(model).toString());
+                            getValueString(detailModel.getDbTable().getPrimary_attribute().getField().get(model)));
                 }
 
                 for (Attribute a : detailModel.getDbTable().getAttributes()) {
-                    cv.put(a.getField().getName(), (a.getField().get(model)).toString());
+                    cv.put(a.getField().getName(), getValueString(a.getField().get(model)));
                 }
 
                 while (true) {
@@ -173,17 +191,20 @@ public class DB_Helper extends SQLiteOpenHelper {
     private boolean saveModelWithExtraValue(AndroidModel model, String key, Object value,String key_db_data_type) {
         if(model!=null) {
             DetailModel detailModel = AnnotationHandler.getDetailModel(model.getClass());
+            if(detailModel==null){
+                return false;
+            }
 
             ContentValues cv = new ContentValues();
             try {
                 if(!detailModel.getDbTable().getPrimary_attribute().isAuto_increment()){
                     cv.put(detailModel.getDbTable().getPrimary_attribute().getField().getName(),
-                            detailModel.getDbTable().getPrimary_attribute().getField().get(model).toString());
+                            getValueString(detailModel.getDbTable().getPrimary_attribute().getField().get(model)));
                 }
                 for (Attribute a : detailModel.getDbTable().getAttributes()) {
-                    cv.put(a.getField().getName(), (a.getField().get(model)).toString());
+                    cv.put(a.getField().getName(), getValueString(a.getField().get(model)));
                 }
-                cv.put(key,value.toString());
+                cv.put(key,getValueString(value));
 
                 while (true) {
                     try {
@@ -305,7 +326,13 @@ public class DB_Helper extends SQLiteOpenHelper {
             }else if (f.getType().equals(double.class) || f.getType().equals(Double.class)) {
                 f.set(object, cursor.getDouble(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
             }else if (f.getType().equals(boolean.class) || f.getType().equals(Boolean.class)) {
-                f.set(object, cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f))));
+                int bool=cursor.getInt(cursor.getColumnIndex(AnnotationHandler.getColumnName(f)));
+                if(bool==0){
+                    f.set(object, false);
+                }
+                else if(bool==1){
+                    f.set(object,true);
+                }
             }
         }
         catch (IllegalAccessException e){
