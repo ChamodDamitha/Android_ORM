@@ -450,12 +450,20 @@ public class DB_Helper extends SQLiteOpenHelper {
 
                     for(ForeignModel foreignModel:detailModel.getForeignModels()){
                         AndroidModel sub_model=(AndroidModel)foreignModel.getField().get(model);
+//                            delete existing sub models
+                        if(sub_model.getTemp_id()==null){
+                            deleteModels(sub_model.getClass(),foreignModel.getCol_name(),model.getTemp_id());
+                        }
                         updateModelWithExtraValue(sub_model,foreignModel.getCol_name(),id);
                     }
 
                     for(ForeignModelList foreignModelList:detailModel.getForeignModelLists()){
                         ArrayList<AndroidModel> sub_models=(ArrayList<AndroidModel>)foreignModelList.getField().get(model);
                         for(AndroidModel sub_model:sub_models){
+//                            delete existing sub models
+                            if(sub_model.getTemp_id()==null){
+                                deleteModels(sub_model.getClass(),foreignModelList.getCol_name(),model.getTemp_id());
+                            }
                             updateModelWithExtraValue(sub_model,foreignModelList.getCol_name(),id);
                         }
                     }
@@ -500,12 +508,20 @@ public class DB_Helper extends SQLiteOpenHelper {
 
                     for(ForeignModel foreignModel:detailModel.getForeignModels()){
                         AndroidModel sub_model=(AndroidModel)foreignModel.getField().get(model);
+//                      delete existing sub models
+                        if(sub_model.getTemp_id()==null){
+                            deleteModels(sub_model.getClass(),foreignModel.getCol_name(),model.getTemp_id());
+                        }
                         updateModelWithExtraValue(sub_model,foreignModel.getCol_name(),id);
                     }
 
                     for(ForeignModelList foreignModelList:detailModel.getForeignModelLists()){
                         ArrayList<AndroidModel> sub_models=(ArrayList<AndroidModel>)foreignModelList.getField().get(model);
                         for(AndroidModel sub_model:sub_models){
+//                       delete existing sub models
+                            if(sub_model.getTemp_id()==null){
+                                deleteModels(sub_model.getClass(),foreignModelList.getCol_name(),model.getTemp_id());
+                            }
                             updateModelWithExtraValue(sub_model,foreignModelList.getCol_name(),id);
                         }
                     }
