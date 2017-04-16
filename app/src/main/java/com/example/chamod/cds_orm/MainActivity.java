@@ -8,6 +8,7 @@ import com.example.chamod.cds_orm.ExampleClasses.Author;
 import com.example.chamod.cds_orm.ExampleClasses.Bag;
 import com.example.chamod.cds_orm.ExampleClasses.Book;
 import com.example.chamod.cds_orm.ExampleClasses.User;
+import com.example.chamod.cds_orm.ExampleClasses.Van;
 
 import java.util.ArrayList;
 
@@ -60,21 +61,21 @@ public class MainActivity extends AppCompatActivity {
 ////////
 //
 
-        User uu =User.get(User.class,this,"name","fuck").get(0);
-
-        uu.bags.get(0).color="changedcolor";
-        uu.update();
-
-        User u =User.get(User.class,this,"name","fuck").get(0);
-
-        Log.e("ORM", u.id+"");
-        Log.e("ORM", u.name+"");
-        Log.e("ORM", u.address+"");
-        Log.e("ORM", u.password+"");
-
-        Log.e("ORM", u.bags.size()+" bags");
-        Log.e("ORM", u.bags.get(0).color+"");
-        Log.e("ORM", u.bags.get(0).id+"");
+//        User uu =User.get(User.class,this,"name","fuck").get(0);
+//
+//        uu.bags.get(0).color="changedcolor";
+//        uu.update();
+//
+//        User u =User.get(User.class,this,"name","fuck").get(0);
+//
+//        Log.e("ORM", u.id+"");
+//        Log.e("ORM", u.name+"");
+//        Log.e("ORM", u.address+"");
+//        Log.e("ORM", u.password+"");
+//
+//        Log.e("ORM", u.bags.size()+" bags");
+//        Log.e("ORM", u.bags.get(0).color+"");
+//        Log.e("ORM", u.bags.get(0).id+"");
 ////
 ////        Log.e("ORM", u.book.id+"");
 ////        Log.e("ORM", u.book.name+"");
@@ -109,6 +110,17 @@ public class MainActivity extends AppCompatActivity {
 ////        Log.e("ORM",books.size()+" size");
 //
 
+
+        Van van=new Van(this,false,49.78f);
+
+        van.save();
+
+
+        Van v=Van.getFirst(Van.class,this);
+
+        Log.e("ORM",v.id+"");
+        Log.e("ORM",v.isDamaged+"");
+        Log.e("ORM",v.speed+"");
 
     }
 }
